@@ -80,36 +80,60 @@ class HuggingFaceAdapter(ModelAdapter):
         self._load()
 
         # Build chat-style input using the tokenizer's chat template
-        messages = [
-            {"role": "system", "content": system_prompt},
-            {"role": "user",   "content": user_prompt},
-        ]
+        messages = []
+        if system_prompt and system_prompt.strip():
+            messages.append({"role": "system", "content": system_prompt})
+        messages.append({"role": "user", "content": user_prompt})
+
         try:
-            input_ids = self._tokenizer.apply_chat_template(
+            enc = self._tokenizer.apply_chat_template(
                 messages,
                 return_tensors="pt",
+                return_dict=True,
                 add_generation_prompt=True,
-            ).to(self._model.device)
+            )
+            if hasattr(enc, "input_ids"):
+                input_ids = enc.input_ids.to(self._model.device)
+                attention_mask = enc.attention_mask.to(self._model.device) if hasattr(enc, "attention_mask") and enc.attention_mask is not None else None
+            elif isinstance(enc, dict):
+                input_ids = enc["input_ids"].to(self._model.device)
+                attention_mask = enc["attention_mask"].to(self._model.device) if "attention_mask" in enc and enc["attention_mask"] is not None else None
+            else:
+                input_ids = enc.to(self._model.device)
+                attention_mask = None
         except Exception:
             # Fallback: manual concatenation
-            combined = f"<|system|>{system_prompt}\n<|user|>{user_prompt}\n<|assistant|>"
-            input_ids = self._tokenizer(combined, return_tensors="pt").input_ids.to(
-                self._model.device
-            )
+            if system_prompt and system_prompt.strip():
+                combined = f"<|system|>{system_prompt}\n<|user|>{user_prompt}\n<|assistant|>"
+            else:
+                combined = f"<|user|>{user_prompt}\n<|assistant|>"
+            enc = self._tokenizer(combined, return_tensors="pt")
+            input_ids = enc.input_ids.to(self._model.device)
+            attention_mask = enc.attention_mask.to(self._model.device) if hasattr(enc, "attention_mask") else None
 
         gen_kwargs = dict(
             max_new_tokens=self.config.max_tokens,
-            temperature=self.config.temperature if self.config.temperature > 0 else None,
-            do_sample=self.config.temperature > 0,
             pad_token_id=self._tokenizer.eos_token_id,
             return_dict_in_generate=True,
-            output_hidden_states=extract_hidden_states,
-            output_scores=False,
         )
+        if self.config.temperature > 0:
+            gen_kwargs["temperature"] = self.config.temperature
+            gen_kwargs["do_sample"] = True
+            if self.config.top_p:
+                gen_kwargs["top_p"] = self.config.top_p
+        else:
+            gen_kwargs["do_sample"] = False
+
+        if extract_hidden_states:
+            gen_kwargs["output_hidden_states"] = True
 
         t0 = time.perf_counter()
         with torch.no_grad():
-            out = self._model.generate(input_ids, **gen_kwargs)
+            out = self._model.generate(
+                input_ids=input_ids,
+                attention_mask=attention_mask,
+                **gen_kwargs,
+            )
         latency_ms = (time.perf_counter() - t0) * 1000
 
         # Decode only new tokens
@@ -118,9 +142,7 @@ class HuggingFaceAdapter(ModelAdapter):
         text = self._tokenizer.decode(generated_ids, skip_special_tokens=True)
 
         hidden_states = None
-        if extract_hidden_states and hasattr(out, "hidden_states"):
-            # out.hidden_states: tuple of generation steps, each is tuple of layer tensors
-            # Take the first generation step's last-token hidden states across all layers
+        if extract_hidden_states and hasattr(out, "hidden_states") and out.hidden_states:
             step_hs = out.hidden_states[0]  # first generated token
             hidden_states = [
                 layer[:, -1, :].detach().cpu().float().numpy()  # [batch, hidden]
@@ -149,22 +171,38 @@ class HuggingFaceAdapter(ModelAdapter):
         """
         import torch
         self._load()
-        messages = [
-            {"role": "system", "content": system_prompt},
-            {"role": "user",   "content": user_prompt},
-        ]
+        messages = []
+        if system_prompt and system_prompt.strip():
+            messages.append({"role": "system", "content": system_prompt})
+        messages.append({"role": "user", "content": user_prompt})
+
         try:
-            input_ids = self._tokenizer.apply_chat_template(
-                messages, return_tensors="pt", add_generation_prompt=True
-            ).to(self._model.device)
-        except Exception:
-            combined = f"<|system|>{system_prompt}\n<|user|>{user_prompt}"
-            input_ids = self._tokenizer(combined, return_tensors="pt").input_ids.to(
-                self._model.device
+            enc = self._tokenizer.apply_chat_template(
+                messages, return_tensors="pt", return_dict=True, add_generation_prompt=True
             )
+            if hasattr(enc, "input_ids"):
+                input_ids = enc.input_ids.to(self._model.device)
+                attention_mask = enc.attention_mask.to(self._model.device) if hasattr(enc, "attention_mask") and enc.attention_mask is not None else None
+            elif isinstance(enc, dict):
+                input_ids = enc["input_ids"].to(self._model.device)
+                attention_mask = enc["attention_mask"].to(self._model.device) if "attention_mask" in enc and enc["attention_mask"] is not None else None
+            else:
+                input_ids = enc.to(self._model.device)
+                attention_mask = None
+        except Exception:
+            if system_prompt and system_prompt.strip():
+                combined = f"<|system|>{system_prompt}\n<|user|>{user_prompt}"
+            else:
+                combined = f"<|user|>{user_prompt}"
+            enc = self._tokenizer(combined, return_tensors="pt")
+            input_ids = enc.input_ids.to(self._model.device)
+            attention_mask = enc.attention_mask.to(self._model.device) if hasattr(enc, "attention_mask") else None
 
         with torch.no_grad():
-            outputs = self._model(input_ids, output_hidden_states=True)
+            if attention_mask is not None:
+                outputs = self._model(input_ids=input_ids, attention_mask=attention_mask, output_hidden_states=True)
+            else:
+                outputs = self._model(input_ids=input_ids, output_hidden_states=True)
 
         all_hs = outputs.hidden_states  # tuple: (n_layers+1) × [batch, seq, hidden]
         selected = all_hs if layers is None else [all_hs[i] for i in layers]
