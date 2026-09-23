@@ -4,7 +4,11 @@ __pycache__/
 *.pyo
 .env
 results/*.db
+results/*.db*
 results/*.parquet
+
+# Raw download cache (>100MB)
+datasets/raw/
 
 # PROTECTED PRIVATE BENCHMARK PARTITION
 # Keeps fresh evaluation test sets strictly isolated from public GitHub repository
