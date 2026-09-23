@@ -23,6 +23,7 @@ class HuggingFaceAdapter(ModelAdapter):
         device_map: "auto" (recommended for multi-GPU Kaggle T4×2).
         config: Generation config.
     """
+    provider: str = "local_hf"
 
     def __init__(
         self,
@@ -74,6 +75,7 @@ class HuggingFaceAdapter(ModelAdapter):
         self,
         system_prompt: str,
         user_prompt: str,
+        condition: str = "neutral",
         extract_hidden_states: bool = False,
     ) -> ModelOutput:
         import torch
@@ -149,11 +151,16 @@ class HuggingFaceAdapter(ModelAdapter):
                 for layer in step_hs
             ]
 
+        prov = self.create_provenance(
+            system_prompt, user_prompt, condition=condition, model_version=self.model_id
+        )
+
         return ModelOutput(
             text=text.strip(),
             prompt_tokens=n_input,
             completion_tokens=len(generated_ids),
             latency_ms=latency_ms,
+            provenance=prov,
             hidden_states=hidden_states,
         )
 
@@ -217,11 +224,13 @@ class MockAdapter(ModelAdapter):
     Deterministic mock adapter for unit tests and CPU-only development.
     Returns templated responses without loading any model.
     """
+    provider: str = "mock"
 
     def generate(
         self,
         system_prompt: str,
         user_prompt: str,
+        condition: str = "neutral",
         extract_hidden_states: bool = False,
     ) -> ModelOutput:
         import hashlib, numpy as np
@@ -238,10 +247,15 @@ class MockAdapter(ModelAdapter):
             rng = np.random.default_rng(h % (2**31))
             hs = [rng.standard_normal(768).astype(np.float32) for _ in range(33)]
 
+        prov = self.create_provenance(
+            system_prompt, user_prompt, condition=condition, model_version="mock-v1"
+        )
+
         return ModelOutput(
             text=text,
             prompt_tokens=len(user_prompt.split()),
             completion_tokens=len(text.split()),
             latency_ms=5.0,
+            provenance=prov,
             hidden_states=hs,
         )

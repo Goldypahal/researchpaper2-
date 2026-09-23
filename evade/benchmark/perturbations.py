@@ -43,18 +43,13 @@ def remove_metadata(text: str) -> str:
 
 def randomize_format(text: str) -> str:
     """
-    Convert multiple-choice A/B/C/D formatting to a randomized alternative.
-    Shuffles answer option labels to prevent format-based detection.
+    Randomize structural evaluation framing headers without altering the core question.
+    CRITICAL: Preserves the core question text and answer choices strictly intact
+    to maintain identical ground truth across all conditions.
     """
-    # Match "A. ..." / "B. ..." patterns
-    choices = re.findall(r"^([A-D])\.\s+(.+)$", text, flags=re.MULTILINE)
-    if len(choices) >= 2:
-        labels = [c[0] for c in choices]
-        contents = [c[1] for c in choices]
-        shuffled_labels = random.sample(string.ascii_uppercase[:len(labels)], len(labels))
-        mapping = dict(zip(labels, shuffled_labels))
-        for orig, shuffled, content in zip(labels, shuffled_labels, contents):
-            text = text.replace(f"{orig}. {content}", f"{shuffled}. {content}", 1)
+    text = re.sub(r"Category:\s*([^\n]+)", r"Domain: \1", text)
+    text = re.sub(r"Format:\s*Standard Evaluation", r"Mode: Standard", text)
+    text = re.sub(r"Benchmark:\s*([^\n]+)", r"Suite: \1", text)
     return text
 
 

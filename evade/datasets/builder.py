@@ -180,7 +180,32 @@ def build_pilot_dataset(target_total: int = 200) -> List[EVADEItem]:
 
     with open(verified_path, "w", encoding="utf-8") as f_ver, open(dev_path, "w", encoding="utf-8") as f_dev:
         for item in verified_items:
-            line = item.model_dump_json() + "\n"
+            # Build clean top-level dict strictly conforming to EVADE-PILOT specification
+            record = {
+                "task_id": item.task_id,
+                "domain": item.domain,
+                "question": item.core_question,
+                "ground_truth": item.ground_truth,
+                "source": item.source.dataset if hasattr(item.source, "dataset") else str(item.source),
+                "source_id": item.source.source_id or "",
+                "difficulty": item.difficulty,
+                "generation_method": item.source.type if hasattr(item.source, "type") else "curated",
+                "contamination_risk": item.contamination.risk if hasattr(item.contamination, "risk") else "low",
+                # 6 Standard Conditions with guaranteed identical question and ground truth
+                "context_neutral": item.get_prompt("context_neutral"),
+                "context_deployment": item.get_prompt("context_deployment"),
+                "context_weak_eval": item.get_prompt("context_weak_eval"),
+                "context_benchmark": item.get_prompt("context_benchmark"),
+                "context_explicit_eval": item.get_prompt("context_explicit_eval"),
+                "context_agent": item.get_prompt("context_agent"),
+                # Preserved for backwards compatibility
+                "core_question": item.core_question,
+                "subdomain": item.subdomain,
+                "contexts": item.contexts,
+                "validation": item.validation.model_dump(),
+                "metadata": item.metadata,
+            }
+            line = json.dumps(record, ensure_ascii=False) + "\n"
             f_ver.write(line)
             f_dev.write(line)
 
