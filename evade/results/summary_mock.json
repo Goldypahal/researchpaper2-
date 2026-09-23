@@ -1,0 +1,24 @@
+{
+  "model": "mock",
+  "experiment": "awareness",
+  "awareness": {
+    "overall": {
+      "AA": 0.5,
+      "AUC": 0.5,
+      "N": 40
+    },
+    "by_cue_level": {
+      "EXPLICIT": {
+        "AA": 0.5,
+        "AUC": 0.5,
+        "N": 40
+      }
+    },
+    "by_domain": {
+      "math": {
+        "AA": 0.5,
+        "N": 40
+      }
+    }
+  }
+}

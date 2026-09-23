@@ -1,0 +1,75 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.backends.legacy:build"
+
+[project]
+name = "evade"
+version = "0.1.0"
+description = "EVADE: Measuring, Explaining, and Mitigating Evaluation-Aware Behavioral Shifts in LLMs"
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+authors = [{ name = "EVADE Research Team" }]
+
+dependencies = [
+    # LLM providers
+    "openai>=1.30",
+    "anthropic>=0.25",
+    "google-generativeai>=0.7",
+    # HuggingFace local inference
+    "transformers>=4.42",
+    "accelerate>=0.31",
+    "bitsandbytes>=0.43",
+    "torch>=2.3",
+    "sentencepiece>=0.2",
+    # Data
+    "datasets>=2.20",
+    "pandas>=2.2",
+    "pyarrow>=16",
+    "pydantic>=2.7",
+    # Storage
+    "sqlite-utils>=3.36",
+    # Statistics
+    "scipy>=1.13",
+    "statsmodels>=0.14",
+    "scikit-learn>=1.5",
+    "pingouin>=0.5",
+    # NLP
+    "nltk>=3.8",
+    "rouge-score>=0.1",
+    # Visualization
+    "matplotlib>=3.9",
+    "seaborn>=0.13",
+    # Utilities
+    "tqdm>=4.66",
+    "rich>=13",
+    "pyyaml>=6",
+    "click>=8.1",
+    "python-dotenv>=1.0",
+    "tenacity>=8",
+    "hashlib2>=1.0; python_version < '3.11'",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8",
+    "pytest-asyncio>=0.23",
+    "ruff>=0.4",
+    "mypy>=1.10",
+]
+
+[project.scripts]
+evade-build  = "scripts.build_bench:main"
+evade-run    = "scripts.run_eval:main"
+evade-analyze = "scripts.analyze:main"
+
+[tool.setuptools.packages.find]
+where = ["."]
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]

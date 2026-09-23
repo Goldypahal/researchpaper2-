@@ -1,0 +1,12 @@
+# EVADE Gitignore
+__pycache__/
+*.pyc
+*.pyo
+.env
+results/*.db
+results/*.parquet
+
+# PROTECTED PRIVATE BENCHMARK PARTITION
+# Keeps fresh evaluation test sets strictly isolated from public GitHub repository
+datasets/processed/private/
+datasets/private/

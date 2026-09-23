@@ -1,0 +1,87 @@
+{
+  "overall": {
+    "delta_accuracy": {
+      "mean": NaN,
+      "std": NaN
+    },
+    "delta_refusal": {
+      "mean": 0.0,
+      "std": 0.0
+    },
+    "delta_confidence": {
+      "mean": NaN,
+      "std": NaN
+    },
+    "delta_verbosity": {
+      "mean": 0.0,
+      "std": 0.0
+    },
+    "delta_tool_use": {
+      "mean": 0.0,
+      "std": 0.0
+    },
+    "ebs_composite": {
+      "mean": 0.0,
+      "std": 0.0
+    },
+    "n": 20
+  },
+  "by_domain": {
+    "math": {
+      "delta_accuracy": {
+        "mean": NaN,
+        "std": NaN
+      },
+      "delta_refusal": {
+        "mean": 0.0,
+        "std": 0.0
+      },
+      "delta_confidence": {
+        "mean": NaN,
+        "std": NaN
+      },
+      "delta_verbosity": {
+        "mean": 0.0,
+        "std": 0.0
+      },
+      "delta_tool_use": {
+        "mean": 0.0,
+        "std": 0.0
+      },
+      "ebs_composite": {
+        "mean": 0.0,
+        "std": 0.0
+      },
+      "n": 20
+    }
+  },
+  "by_cue_level": {
+    "EXPLICIT": {
+      "delta_accuracy": {
+        "mean": NaN,
+        "std": NaN
+      },
+      "delta_refusal": {
+        "mean": 0.0,
+        "std": 0.0
+      },
+      "delta_confidence": {
+        "mean": NaN,
+        "std": NaN
+      },
+      "delta_verbosity": {
+        "mean": 0.0,
+        "std": 0.0
+      },
+      "delta_tool_use": {
+        "mean": 0.0,
+        "std": 0.0
+      },
+      "ebs_composite": {
+        "mean": 0.0,
+        "std": 0.0
+      },
+      "n": 20
+    }
+  }
+}

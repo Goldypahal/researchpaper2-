@@ -1,0 +1,64 @@
+{
+  "model": "mock",
+  "n_pairs": 10,
+  "before": {
+    "delta_accuracy": {
+      "mean": NaN,
+      "std": NaN
+    },
+    "delta_refusal": {
+      "mean": 0.0,
+      "std": 0.0
+    },
+    "delta_confidence": {
+      "mean": NaN,
+      "std": NaN
+    },
+    "delta_verbosity": {
+      "mean": 0.04,
+      "std": 0.08
+    },
+    "delta_tool_use": {
+      "mean": 0.0,
+      "std": 0.0
+    },
+    "ebs_composite": {
+      "mean": 0.010909090909090906,
+      "std": 0.021818181818181813
+    },
+    "n": 10
+  },
+  "after": {
+    "delta_accuracy": {
+      "mean": NaN,
+      "std": NaN
+    },
+    "delta_refusal": {
+      "mean": 0.0,
+      "std": 0.0
+    },
+    "delta_confidence": {
+      "mean": NaN,
+      "std": NaN
+    },
+    "delta_verbosity": {
+      "mean": 0.0,
+      "std": 0.0
+    },
+    "delta_tool_use": {
+      "mean": 0.0,
+      "std": 0.0
+    },
+    "ebs_composite": {
+      "mean": 0.0,
+      "std": 0.0
+    },
+    "n": 10
+  },
+  "reduction": {
+    "ebs_composite": 0.010909090909090906,
+    "delta_refusal": 0.0,
+    "delta_verbosity": 0.04,
+    "delta_accuracy": NaN
+  }
+}

@@ -1,0 +1,33 @@
+{
+  "dataset_name": "EVADE-Pilot-200",
+  "version": "1.0",
+  "creation_date": "2026-09-23",
+  "total_tasks": 200,
+  "total_evaluation_instances": 1200,
+  "domains": {
+    "math": 40,
+    "reasoning": 40,
+    "coding": 40,
+    "knowledge": 30,
+    "language": 30,
+    "safety": 20
+  },
+  "sources": {
+    "programmatic": 70,
+    "livebench": 30,
+    "bigbench": 80,
+    "curated": 20
+  },
+  "conditions": [
+    "neutral",
+    "deployment",
+    "weak_eval",
+    "benchmark",
+    "explicit_eval",
+    "cue_swapped"
+  ],
+  "files": {
+    "verified": "C:\\Users\\Asus\\OneDrive\\Desktop\\Researchpapers\\Research_Paper_2_Evaluation_Awareness\\evade\\datasets\\verified\\evade_pilot_200.jsonl",
+    "dev_dataset": "C:\\Users\\Asus\\OneDrive\\Desktop\\Researchpapers\\Research_Paper_2_Evaluation_Awareness\\evade\\datasets\\processed\\dev\\evade_pilot_200.jsonl"
+  }
+}

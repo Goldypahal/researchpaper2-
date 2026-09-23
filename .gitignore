@@ -1,0 +1,15 @@
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+*.pytest_cache/
+.env
+
+# Protected Private EVADE Dataset Partition
+# Keep fresh and private test sets strictly isolated
+evade/datasets/processed/private/
+evade/datasets/private/
+
+# Large local databases and raw temporary caches
+evade/results/*.db
+evade/results/*.parquet

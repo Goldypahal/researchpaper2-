@@ -1,0 +1,849 @@
+{
+  "EXPLICIT": {
+    "cue_level": 1,
+    "awareness": {
+      "overall": {
+        "AA": 0.5,
+        "AUC": 0.5,
+        "N": 20
+      },
+      "by_cue_level": {
+        "EXPLICIT": {
+          "AA": 0.5,
+          "AUC": 0.5,
+          "N": 20
+        }
+      },
+      "by_domain": {
+        "coding": {
+          "AA": 0.5,
+          "N": 8
+        },
+        "safety": {
+          "AA": 0.5,
+          "N": 12
+        }
+      }
+    },
+    "shift": {
+      "overall": {
+        "delta_accuracy": {
+          "mean": NaN,
+          "std": NaN
+        },
+        "delta_refusal": {
+          "mean": 0.0,
+          "std": 0.0
+        },
+        "delta_confidence": {
+          "mean": NaN,
+          "std": NaN
+        },
+        "delta_verbosity": {
+          "mean": 0.2,
+          "std": 0.0
+        },
+        "delta_tool_use": {
+          "mean": 0.0,
+          "std": 0.0
+        },
+        "ebs_composite": {
+          "mean": 0.05454545454545454,
+          "std": 6.938893903907228e-18
+        },
+        "n": 10
+      },
+      "by_domain": {
+        "coding": {
+          "delta_accuracy": {
+            "mean": NaN,
+            "std": NaN
+          },
+          "delta_refusal": {
+            "mean": 0.0,
+            "std": 0.0
+          },
+          "delta_confidence": {
+            "mean": NaN,
+            "std": NaN
+          },
+          "delta_verbosity": {
+            "mean": 0.2,
+            "std": 0.0
+          },
+          "delta_tool_use": {
+            "mean": 0.0,
+            "std": 0.0
+          },
+          "ebs_composite": {
+            "mean": 0.054545454545454536,
+            "std": 0.0
+          },
+          "n": 4
+        },
+        "safety": {
+          "delta_accuracy": {
+            "mean": NaN,
+            "std": NaN
+          },
+          "delta_refusal": {
+            "mean": 0.0,
+            "std": 0.0
+          },
+          "delta_confidence": {
+            "mean": NaN,
+            "std": NaN
+          },
+          "delta_verbosity": {
+            "mean": 0.19999999999999998,
+            "std": 2.7755575615628914e-17
+          },
+          "delta_tool_use": {
+            "mean": 0.0,
+            "std": 0.0
+          },
+          "ebs_composite": {
+            "mean": 0.05454545454545454,
+            "std": 6.938893903907228e-18
+          },
+          "n": 6
+        }
+      },
+      "by_cue_level": {
+        "EXPLICIT": {
+          "delta_accuracy": {
+            "mean": NaN,
+            "std": NaN
+          },
+          "delta_refusal": {
+            "mean": 0.0,
+            "std": 0.0
+          },
+          "delta_confidence": {
+            "mean": NaN,
+            "std": NaN
+          },
+          "delta_verbosity": {
+            "mean": 0.2,
+            "std": 0.0
+          },
+          "delta_tool_use": {
+            "mean": 0.0,
+            "std": 0.0
+          },
+          "ebs_composite": {
+            "mean": 0.05454545454545454,
+            "std": 6.938893903907228e-18
+          },
+          "n": 10
+        }
+      }
+    }
+  },
+  "BENCHMARK_NAME": {
+    "cue_level": 2,
+    "awareness": {
+      "overall": {
+        "AA": 0.5,
+        "AUC": 0.5,
+        "N": 20
+      },
+      "by_cue_level": {
+        "BENCHMARK_NAME": {
+          "AA": 0.5,
+          "AUC": 0.5,
+          "N": 20
+        }
+      },
+      "by_domain": {
+        "coding": {
+          "AA": 0.5,
+          "N": 8
+        },
+        "safety": {
+          "AA": 0.5,
+          "N": 12
+        }
+      }
+    },
+    "shift": {
+      "overall": {
+        "delta_accuracy": {
+          "mean": NaN,
+          "std": NaN
+        },
+        "delta_refusal": {
+          "mean": 0.0,
+          "std": 0.0
+        },
+        "delta_confidence": {
+          "mean": NaN,
+          "std": NaN
+        },
+        "delta_verbosity": {
+          "mean": 0.0,
+          "std": 0.0
+        },
+        "delta_tool_use": {
+          "mean": 0.0,
+          "std": 0.0
+        },
+        "ebs_composite": {
+          "mean": 0.0,
+          "std": 0.0
+        },
+        "n": 10
+      },
+      "by_domain": {
+        "coding": {
+          "delta_accuracy": {
+            "mean": NaN,
+            "std": NaN
+          },
+          "delta_refusal": {
+            "mean": 0.0,
+            "std": 0.0
+          },
+          "delta_confidence": {
+            "mean": NaN,
+            "std": NaN
+          },
+          "delta_verbosity": {
+            "mean": 0.0,
+            "std": 0.0
+          },
+          "delta_tool_use": {
+            "mean": 0.0,
+            "std": 0.0
+          },
+          "ebs_composite": {
+            "mean": 0.0,
+            "std": 0.0
+          },
+          "n": 4
+        },
+        "safety": {
+          "delta_accuracy": {
+            "mean": NaN,
+            "std": NaN
+          },
+          "delta_refusal": {
+            "mean": 0.0,
+            "std": 0.0
+          },
+          "delta_confidence": {
+            "mean": NaN,
+            "std": NaN
+          },
+          "delta_verbosity": {
+            "mean": 0.0,
+            "std": 0.0
+          },
+          "delta_tool_use": {
+            "mean": 0.0,
+            "std": 0.0
+          },
+          "ebs_composite": {
+            "mean": 0.0,
+            "std": 0.0
+          },
+          "n": 6
+        }
+      },
+      "by_cue_level": {
+        "BENCHMARK_NAME": {
+          "delta_accuracy": {
+            "mean": NaN,
+            "std": NaN
+          },
+          "delta_refusal": {
+            "mean": 0.0,
+            "std": 0.0
+          },
+          "delta_confidence": {
+            "mean": NaN,
+            "std": NaN
+          },
+          "delta_verbosity": {
+            "mean": 0.0,
+            "std": 0.0
+          },
+          "delta_tool_use": {
+            "mean": 0.0,
+            "std": 0.0
+          },
+          "ebs_composite": {
+            "mean": 0.0,
+            "std": 0.0
+          },
+          "n": 10
+        }
+      }
+    }
+  },
+  "FORMATTING": {
+    "cue_level": 3,
+    "awareness": {
+      "overall": {
+        "AA": 0.5,
+        "AUC": 0.5,
+        "N": 20
+      },
+      "by_cue_level": {
+        "FORMATTING": {
+          "AA": 0.5,
+          "AUC": 0.5,
+          "N": 20
+        }
+      },
+      "by_domain": {
+        "coding": {
+          "AA": 0.5,
+          "N": 8
+        },
+        "safety": {
+          "AA": 0.5,
+          "N": 12
+        }
+      }
+    },
+    "shift": {
+      "overall": {
+        "delta_accuracy": {
+          "mean": NaN,
+          "std": NaN
+        },
+        "delta_refusal": {
+          "mean": 0.0,
+          "std": 0.0
+        },
+        "delta_confidence": {
+          "mean": NaN,
+          "std": NaN
+        },
+        "delta_verbosity": {
+          "mean": 0.0,
+          "std": 0.0
+        },
+        "delta_tool_use": {
+          "mean": 0.0,
+          "std": 0.0
+        },
+        "ebs_composite": {
+          "mean": 0.0,
+          "std": 0.0
+        },
+        "n": 10
+      },
+      "by_domain": {
+        "coding": {
+          "delta_accuracy": {
+            "mean": NaN,
+            "std": NaN
+          },
+          "delta_refusal": {
+            "mean": 0.0,
+            "std": 0.0
+          },
+          "delta_confidence": {
+            "mean": NaN,
+            "std": NaN
+          },
+          "delta_verbosity": {
+            "mean": 0.0,
+            "std": 0.0
+          },
+          "delta_tool_use": {
+            "mean": 0.0,
+            "std": 0.0
+          },
+          "ebs_composite": {
+            "mean": 0.0,
+            "std": 0.0
+          },
+          "n": 4
+        },
+        "safety": {
+          "delta_accuracy": {
+            "mean": NaN,
+            "std": NaN
+          },
+          "delta_refusal": {
+            "mean": 0.0,
+            "std": 0.0
+          },
+          "delta_confidence": {
+            "mean": NaN,
+            "std": NaN
+          },
+          "delta_verbosity": {
+            "mean": 0.0,
+            "std": 0.0
+          },
+          "delta_tool_use": {
+            "mean": 0.0,
+            "std": 0.0
+          },
+          "ebs_composite": {
+            "mean": 0.0,
+            "std": 0.0
+          },
+          "n": 6
+        }
+      },
+      "by_cue_level": {
+        "FORMATTING": {
+          "delta_accuracy": {
+            "mean": NaN,
+            "std": NaN
+          },
+          "delta_refusal": {
+            "mean": 0.0,
+            "std": 0.0
+          },
+          "delta_confidence": {
+            "mean": NaN,
+            "std": NaN
+          },
+          "delta_verbosity": {
+            "mean": 0.0,
+            "std": 0.0
+          },
+          "delta_tool_use": {
+            "mean": 0.0,
+            "std": 0.0
+          },
+          "ebs_composite": {
+            "mean": 0.0,
+            "std": 0.0
+          },
+          "n": 10
+        }
+      }
+    }
+  },
+  "METADATA": {
+    "cue_level": 4,
+    "awareness": {
+      "overall": {
+        "AA": 0.5,
+        "AUC": 0.5,
+        "N": 20
+      },
+      "by_cue_level": {
+        "METADATA": {
+          "AA": 0.5,
+          "AUC": 0.5,
+          "N": 20
+        }
+      },
+      "by_domain": {
+        "coding": {
+          "AA": 0.5,
+          "N": 8
+        },
+        "safety": {
+          "AA": 0.5,
+          "N": 12
+        }
+      }
+    },
+    "shift": {
+      "overall": {
+        "delta_accuracy": {
+          "mean": NaN,
+          "std": NaN
+        },
+        "delta_refusal": {
+          "mean": 0.0,
+          "std": 0.0
+        },
+        "delta_confidence": {
+          "mean": NaN,
+          "std": NaN
+        },
+        "delta_verbosity": {
+          "mean": 0.0,
+          "std": 0.0
+        },
+        "delta_tool_use": {
+          "mean": 0.0,
+          "std": 0.0
+        },
+        "ebs_composite": {
+          "mean": 0.0,
+          "std": 0.0
+        },
+        "n": 10
+      },
+      "by_domain": {
+        "coding": {
+          "delta_accuracy": {
+            "mean": NaN,
+            "std": NaN
+          },
+          "delta_refusal": {
+            "mean": 0.0,
+            "std": 0.0
+          },
+          "delta_confidence": {
+            "mean": NaN,
+            "std": NaN
+          },
+          "delta_verbosity": {
+            "mean": 0.0,
+            "std": 0.0
+          },
+          "delta_tool_use": {
+            "mean": 0.0,
+            "std": 0.0
+          },
+          "ebs_composite": {
+            "mean": 0.0,
+            "std": 0.0
+          },
+          "n": 4
+        },
+        "safety": {
+          "delta_accuracy": {
+            "mean": NaN,
+            "std": NaN
+          },
+          "delta_refusal": {
+            "mean": 0.0,
+            "std": 0.0
+          },
+          "delta_confidence": {
+            "mean": NaN,
+            "std": NaN
+          },
+          "delta_verbosity": {
+            "mean": 0.0,
+            "std": 0.0
+          },
+          "delta_tool_use": {
+            "mean": 0.0,
+            "std": 0.0
+          },
+          "ebs_composite": {
+            "mean": 0.0,
+            "std": 0.0
+          },
+          "n": 6
+        }
+      },
+      "by_cue_level": {
+        "METADATA": {
+          "delta_accuracy": {
+            "mean": NaN,
+            "std": NaN
+          },
+          "delta_refusal": {
+            "mean": 0.0,
+            "std": 0.0
+          },
+          "delta_confidence": {
+            "mean": NaN,
+            "std": NaN
+          },
+          "delta_verbosity": {
+            "mean": 0.0,
+            "std": 0.0
+          },
+          "delta_tool_use": {
+            "mean": 0.0,
+            "std": 0.0
+          },
+          "ebs_composite": {
+            "mean": 0.0,
+            "std": 0.0
+          },
+          "n": 10
+        }
+      }
+    }
+  },
+  "AGENT_ENV": {
+    "cue_level": 5,
+    "awareness": {
+      "overall": {
+        "AA": 0.5,
+        "AUC": 0.5,
+        "N": 20
+      },
+      "by_cue_level": {
+        "AGENT_ENV": {
+          "AA": 0.5,
+          "AUC": 0.5,
+          "N": 20
+        }
+      },
+      "by_domain": {
+        "coding": {
+          "AA": 0.5,
+          "N": 8
+        },
+        "safety": {
+          "AA": 0.5,
+          "N": 12
+        }
+      }
+    },
+    "shift": {
+      "overall": {
+        "delta_accuracy": {
+          "mean": NaN,
+          "std": NaN
+        },
+        "delta_refusal": {
+          "mean": 0.0,
+          "std": 0.0
+        },
+        "delta_confidence": {
+          "mean": NaN,
+          "std": NaN
+        },
+        "delta_verbosity": {
+          "mean": 0.0,
+          "std": 0.0
+        },
+        "delta_tool_use": {
+          "mean": 0.0,
+          "std": 0.0
+        },
+        "ebs_composite": {
+          "mean": 0.0,
+          "std": 0.0
+        },
+        "n": 10
+      },
+      "by_domain": {
+        "coding": {
+          "delta_accuracy": {
+            "mean": NaN,
+            "std": NaN
+          },
+          "delta_refusal": {
+            "mean": 0.0,
+            "std": 0.0
+          },
+          "delta_confidence": {
+            "mean": NaN,
+            "std": NaN
+          },
+          "delta_verbosity": {
+            "mean": 0.0,
+            "std": 0.0
+          },
+          "delta_tool_use": {
+            "mean": 0.0,
+            "std": 0.0
+          },
+          "ebs_composite": {
+            "mean": 0.0,
+            "std": 0.0
+          },
+          "n": 4
+        },
+        "safety": {
+          "delta_accuracy": {
+            "mean": NaN,
+            "std": NaN
+          },
+          "delta_refusal": {
+            "mean": 0.0,
+            "std": 0.0
+          },
+          "delta_confidence": {
+            "mean": NaN,
+            "std": NaN
+          },
+          "delta_verbosity": {
+            "mean": 0.0,
+            "std": 0.0
+          },
+          "delta_tool_use": {
+            "mean": 0.0,
+            "std": 0.0
+          },
+          "ebs_composite": {
+            "mean": 0.0,
+            "std": 0.0
+          },
+          "n": 6
+        }
+      },
+      "by_cue_level": {
+        "AGENT_ENV": {
+          "delta_accuracy": {
+            "mean": NaN,
+            "std": NaN
+          },
+          "delta_refusal": {
+            "mean": 0.0,
+            "std": 0.0
+          },
+          "delta_confidence": {
+            "mean": NaN,
+            "std": NaN
+          },
+          "delta_verbosity": {
+            "mean": 0.0,
+            "std": 0.0
+          },
+          "delta_tool_use": {
+            "mean": 0.0,
+            "std": 0.0
+          },
+          "ebs_composite": {
+            "mean": 0.0,
+            "std": 0.0
+          },
+          "n": 10
+        }
+      }
+    }
+  },
+  "NATURALISTIC": {
+    "cue_level": 6,
+    "awareness": {
+      "overall": {
+        "AA": 0.5,
+        "AUC": 0.5,
+        "N": 20
+      },
+      "by_cue_level": {
+        "NATURALISTIC": {
+          "AA": 0.5,
+          "AUC": 0.5,
+          "N": 20
+        }
+      },
+      "by_domain": {
+        "coding": {
+          "AA": 0.5,
+          "N": 8
+        },
+        "safety": {
+          "AA": 0.5,
+          "N": 12
+        }
+      }
+    },
+    "shift": {
+      "overall": {
+        "delta_accuracy": {
+          "mean": NaN,
+          "std": NaN
+        },
+        "delta_refusal": {
+          "mean": 0.0,
+          "std": 0.0
+        },
+        "delta_confidence": {
+          "mean": NaN,
+          "std": NaN
+        },
+        "delta_verbosity": {
+          "mean": 0.0,
+          "std": 0.0
+        },
+        "delta_tool_use": {
+          "mean": 0.0,
+          "std": 0.0
+        },
+        "ebs_composite": {
+          "mean": 0.0,
+          "std": 0.0
+        },
+        "n": 10
+      },
+      "by_domain": {
+        "coding": {
+          "delta_accuracy": {
+            "mean": NaN,
+            "std": NaN
+          },
+          "delta_refusal": {
+            "mean": 0.0,
+            "std": 0.0
+          },
+          "delta_confidence": {
+            "mean": NaN,
+            "std": NaN
+          },
+          "delta_verbosity": {
+            "mean": 0.0,
+            "std": 0.0
+          },
+          "delta_tool_use": {
+            "mean": 0.0,
+            "std": 0.0
+          },
+          "ebs_composite": {
+            "mean": 0.0,
+            "std": 0.0
+          },
+          "n": 4
+        },
+        "safety": {
+          "delta_accuracy": {
+            "mean": NaN,
+            "std": NaN
+          },
+          "delta_refusal": {
+            "mean": 0.0,
+            "std": 0.0
+          },
+          "delta_confidence": {
+            "mean": NaN,
+            "std": NaN
+          },
+          "delta_verbosity": {
+            "mean": 0.0,
+            "std": 0.0
+          },
+          "delta_tool_use": {
+            "mean": 0.0,
+            "std": 0.0
+          },
+          "ebs_composite": {
+            "mean": 0.0,
+            "std": 0.0
+          },
+          "n": 6
+        }
+      },
+      "by_cue_level": {
+        "NATURALISTIC": {
+          "delta_accuracy": {
+            "mean": NaN,
+            "std": NaN
+          },
+          "delta_refusal": {
+            "mean": 0.0,
+            "std": 0.0
+          },
+          "delta_confidence": {
+            "mean": NaN,
+            "std": NaN
+          },
+          "delta_verbosity": {
+            "mean": 0.0,
+            "std": 0.0
+          },
+          "delta_tool_use": {
+            "mean": 0.0,
+            "std": 0.0
+          },
+          "ebs_composite": {
+            "mean": 0.0,
+            "std": 0.0
+          },
+          "n": 10
+        }
+      }
+    }
+  },
+  "cue_dependence_cd": 0.0
+}
