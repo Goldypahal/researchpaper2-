@@ -40,7 +40,6 @@ notebook_content = {
     "\n",
     "print(\"sqlite-utils version: \", importlib.metadata.version('sqlite-utils'))\n",
     "print(\"openai version:       \", openai.__version__)\n",
-    "print(\"tenacity version:     \", tenacity.__version__)\n",
     "print(\"[OK] Dependencies installed and verified successfully!\")"
    ]
   },
