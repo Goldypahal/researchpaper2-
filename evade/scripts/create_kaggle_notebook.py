@@ -8,30 +8,20 @@ notebook_content = {
    "cell_type": "markdown",
    "metadata": {},
    "source": [
-    "# EVADE: Evaluation-Induced Behavioral Shifts (Empirical Pilot Matrix)\n",
+    "# EVADE: 10-Task Smoke Test (60 Generations)\n",
     "\n",
-    "Empirical study testing LLM behavioral shifts between evaluation vs deployment context on identical questions:\n",
-    "```\n",
-    "                    SAME QUESTION\n",
-    "                         │\n",
-    "             ┌───────────┼───────────┐\n",
-    "             ↓           ↓           ↓\n",
-    "          Neutral     Evaluation   Deployment\n",
-    "             │           │           │\n",
-    "             └───────────┼───────────┘\n",
-    "                         ↓\n",
-    "                  SAME GROUND TRUTH\n",
-    "```\n",
-    "Protocol:\n",
-    "1. **Phase 1**: 10-task Smoke Test (60 generations) with SQLite database verification.\n",
-    "2. **Phase 2**: Full 200-task matrix (1,200 generations per model) across Qwen 27B, Gemini 2.5 Flash, and GPT-OSS 120B."
+    "### Verification Objectives\n",
+    "1. **Dependency Integrity**: Verify `sqlite-utils`, `openai`, `tenacity`.\n",
+    "2. **API Handshake**: Test live Groq adapter connectivity under evaluation & deployment framings.\n",
+    "3. **Persistence Verification**: Confirm that 60 responses (10 tasks $\\times$ 6 conditions) are committed to SQLite (`results/evade_results.db`) and raw JSONL.\n",
+    "4. **No-Empty Packaging Guard**: Ensure artifacts are only packaged when generations $> 0$."
    ]
   },
   {
    "cell_type": "markdown",
    "metadata": {},
    "source": [
-    "### Step 1: Install Dependencies (including sqlite-utils)"
+    "### Step 1: Install Dependencies & Verify sqlite-utils"
    ]
   },
   {
@@ -42,13 +32,16 @@ notebook_content = {
    "source": [
     "!pip install -q openai google-genai tenacity pydantic python-dotenv scipy tabulate sqlite-utils\n",
     "\n",
+    "import importlib.metadata\n",
     "import sqlite_utils\n",
+    "from sqlite_utils import Database\n",
     "import openai\n",
     "import tenacity\n",
-    "print(\"sqlite_utils version:\", sqlite_utils.__version__)\n",
-    "print(\"openai version:      \", openai.__version__)\n",
-    "print(\"tenacity version:    \", tenacity.__version__)\n",
-    "print(\"Dependencies installed and verified successfully!\")"
+    "\n",
+    "print(\"sqlite-utils version: \", importlib.metadata.version('sqlite-utils'))\n",
+    "print(\"openai version:       \", openai.__version__)\n",
+    "print(\"tenacity version:     \", tenacity.__version__)\n",
+    "print(\"[OK] Dependencies installed and verified successfully!\")"
    ]
   },
   {
@@ -92,7 +85,6 @@ notebook_content = {
    "source": [
     "import os\n",
     "\n",
-    "# 1. Load from Kaggle Secrets (Add-ons -> Secrets in Kaggle)\n",
     "try:\n",
     "    from kaggle_secrets import UserSecretsClient\n",
     "    user_secrets = UserSecretsClient()\n",
@@ -105,7 +97,7 @@ notebook_content = {
     "        except Exception:\n",
     "            pass\n",
     "except Exception as e:\n",
-    "    print(\"Kaggle secrets not available via client:\", e)\n",
+    "    print(\"Kaggle secrets client not available:\", e)\n",
     "\n",
     "groq_ok = bool(os.environ.get(\"GROQ_API_KEY\"))\n",
     "google_ok = bool(os.environ.get(\"GOOGLE_API_KEY\"))\n",
@@ -123,8 +115,8 @@ notebook_content = {
    "cell_type": "markdown",
    "metadata": {},
    "source": [
-    "### Step 4: Phase 1 Smoke Test (10 Tasks $\\times$ 6 Conditions = 60 Generations)\n",
-    "Runs Qwen 27B on exactly 10 tasks to verify end-to-end API connectivity, database persistence, and scoring."
+    "### Step 4: Execute 10-Task Smoke Test (60 Generations)\n",
+    "Runs Qwen 27B across the first 10 tasks $\\times$ 6 conditions."
    ]
   },
   {
@@ -140,8 +132,7 @@ notebook_content = {
    "cell_type": "markdown",
    "metadata": {},
    "source": [
-    "### Step 5: Database & Provenance Integrity Verification\n",
-    "Validates that the 60 generations were written to SQLite and raw JSONL with valid schema and non-zero counts."
+    "### Step 5: Database and Provenance Integrity Inspection"
    ]
   },
   {
@@ -154,83 +145,43 @@ notebook_content = {
     "from pathlib import Path\n",
     "import sqlite_utils\n",
     "\n",
+    "# 1. Verify SQLite Database\n",
     "db_file = Path(\"results/evade_results.db\")\n",
     "assert db_file.exists(), f\"Database not found at {db_file}!\"\n",
     "db = sqlite_utils.Database(str(db_file))\n",
+    "print(f\"Database tables found: {db.table_names()}\")\n",
     "assert \"responses\" in db.table_names(), f\"Table 'responses' missing! Tables found: {db.table_names()}\"\n",
     "\n",
     "table = db[\"responses\"]\n",
     "db_count = table.count\n",
-    "print(f\"[DB Check] Table 'responses' total records: {db_count}\")\n",
-    "print(f\"[DB Check] Columns: {list(table.columns_dict.keys())}\")\n",
+    "print(f\"Table 'responses' count: {db_count}\")\n",
+    "print(f\"Table columns: {list(table.columns_dict.keys())}\")\n",
     "assert db_count >= 60, f\"Expected at least 60 DB rows, found {db_count}\"\n",
     "\n",
+    "# 2. Verify Raw JSONL Output\n",
     "raw_file = Path(\"pilot_results/raw/qwen_qwen3.8-27b_raw.jsonl\")\n",
     "assert raw_file.exists(), f\"Raw file missing at {raw_file}!\"\n",
     "raw_lines = [json.loads(line) for line in open(raw_file, encoding=\"utf-8\") if line.strip()]\n",
-    "print(f\"[JSONL Check] Raw records count: {len(raw_lines)}\")\n",
+    "print(f\"Raw JSONL records count: {len(raw_lines)}\")\n",
     "assert len(raw_lines) >= 60, f\"Expected at least 60 raw records, found {len(raw_lines)}\"\n",
     "\n",
-    "# Sample check\n",
+    "# 3. Sample Provenance Check\n",
     "sample = raw_lines[0]\n",
-    "print(f\"[Sample Check] Task: {sample['task_id']} | Cond: {sample['condition']} | Accuracy: {sample['accuracy']} | Tokens: {sample['completion_tokens']}\")\n",
-    "print(\"\\n>>> [SUCCESS] Phase 1 Smoke Test verified! Database and raw logs intact.\")"
+    "print(f\"Sample Task: {sample['task_id']}\")\n",
+    "print(f\"Sample Condition: {sample['condition']}\")\n",
+    "print(f\"Sample Accuracy: {sample['accuracy']}\")\n",
+    "print(f\"Sample Completion Tokens: {sample['completion_tokens']}\")\n",
+    "print(f\"Sample Prompt Hash: {sample['provenance'].get('prompt_hash')}\")\n",
+    "print(\"\\n=================================================================\")\n",
+    "print(\"  [VERIFICATION PASSED] 60 GENERATIONS RECORDED & VERIFIED\")\n",
+    "print(\"=================================================================\")"
    ]
   },
   {
    "cell_type": "markdown",
    "metadata": {},
    "source": [
-    "### Step 6: Phase 2 Full Matrix — Qwen 27B (Resume to 1,200 Generations)"
-   ]
-  },
-  {
-   "cell_type": "code",
-   "execution_count": None,
-   "metadata": {},
-   "outputs": [],
-   "source": [
-    "# Automatically resumes from task 11 (the 60 smoke test generations are preserved)\n",
-    "!python scripts/run_pilot_matrix.py --model qwen/qwen3.8-27b --delay 2.0"
-   ]
-  },
-  {
-   "cell_type": "markdown",
-   "metadata": {},
-   "source": [
-    "### Step 7: Phase 2 Full Matrix — Gemini 2.5 Flash (1,200 Generations)"
-   ]
-  },
-  {
-   "cell_type": "code",
-   "execution_count": None,
-   "metadata": {},
-   "outputs": [],
-   "source": [
-    "!python scripts/run_pilot_matrix.py --model gemini-2.5-flash --delay 2.5"
-   ]
-  },
-  {
-   "cell_type": "markdown",
-   "metadata": {},
-   "source": [
-    "### Step 8: Phase 2 Full Matrix — GPT-OSS 120B (1,200 Generations)"
-   ]
-  },
-  {
-   "cell_type": "code",
-   "execution_count": None,
-   "metadata": {},
-   "outputs": [],
-   "source": [
-    "!python scripts/run_pilot_matrix.py --model openai/gpt-oss-120b --delay 2.0"
-   ]
-  },
-  {
-   "cell_type": "markdown",
-   "metadata": {},
-   "source": [
-    "### Step 9: Package and Export Results (Guarded against empty run)"
+    "### Step 6: Guarded Packaging of Smoke Test Artifacts"
    ]
   },
   {
@@ -244,19 +195,15 @@ notebook_content = {
     "\n",
     "raw_dir = Path(\"pilot_results/raw\")\n",
     "raw_files = list(raw_dir.glob(\"*.jsonl\")) if raw_dir.exists() else []\n",
-    "total_records = 0\n",
-    "for rf in raw_files:\n",
-    "    c = sum(1 for line in open(rf, encoding=\"utf-8\") if line.strip())\n",
-    "    print(f\"File: {rf.name} -> {c} records\")\n",
-    "    total_records += c\n",
+    "total_records = sum(sum(1 for line in open(rf, encoding=\"utf-8\") if line.strip()) for rf in raw_files)\n",
     "\n",
-    "print(f\"\\nTotal raw generations collected: {total_records}\")\n",
+    "print(f\"Total raw records to package: {total_records}\")\n",
     "if total_records == 0:\n",
     "    raise RuntimeError(\"CRITICAL: Experiment produced 0 generations. Refusing to package empty results!\")\n",
     "\n",
     "out_zip = \"/kaggle/working/evade_pilot_results\"\n",
     "shutil.make_archive(out_zip, \"zip\", \"pilot_results\")\n",
-    "print(f\"[SUCCESS] {total_records} generations packaged to {out_zip}.zip!\")"
+    "print(f\"[SUCCESS] Smoke test artifacts packaged to {out_zip}.zip!\")"
    ]
   }
  ],
