@@ -233,7 +233,17 @@ def main():
                 pct = (gen_count / total_generations) * 100
                 print(f"[{args.model}] Task {t_idx}/{total_tasks} done | Gens: {gen_count}/{total_generations} ({pct:.1f}%) | Elapsed: {elapsed/60:.1f}m")
 
-    print("\n[OK] All generations complete! Starting paired statistical analysis...")
+    print("=" * 70)
+    print(f"  EXECUTION ACCOUNTING: {args.model}")
+    print(f"  Expected:   {total_generations}")
+    print(f"  Successful: {gen_count}")
+    print(f"  Remaining:  {total_generations - gen_count}")
+    print("=" * 70)
+
+    if gen_count == 0:
+        raise RuntimeError(f"CRITICAL: Experiment produced 0 generations for {args.model}. Aborting!")
+
+    print("\n[OK] Generations verified! Starting paired statistical analysis...")
 
     # Load all raw records for this model to compute paired statistics
     all_raw: Dict[str, Dict[str, Any]] = {}

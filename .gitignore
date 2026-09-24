@@ -19,3 +19,4 @@ evade/results/*.db*
 evade/results/*.parquet
 evade/data/*.db*
 evade/pilot_results/raw/
+evade/notebooks/kaggle_output/
