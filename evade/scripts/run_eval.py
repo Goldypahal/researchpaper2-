@@ -41,6 +41,8 @@ def main():
                         help="Enable 4-bit quantization for local HF models.")
     parser.add_argument("--seed",       type=int, default=42)
     parser.add_argument("--temperature",type=float, default=0.0)
+    parser.add_argument("--delay",      type=float, default=0.5,
+                        help="Pacing delay in seconds between API requests.")
     args = parser.parse_args()
 
     from dotenv import load_dotenv
@@ -64,11 +66,7 @@ def main():
     from models.api import get_adapter
     cfg = GenerationConfig(temperature=args.temperature, seed=args.seed)
 
-    if args.model.startswith("Qwen") or "/" in args.model:
-        from models.local import HuggingFaceAdapter
-        adapter = HuggingFaceAdapter(args.model, quantize_4bit=args.quantize_4bit, config=cfg)
-    else:
-        adapter = get_adapter(args.model, cfg)
+    adapter = get_adapter(args.model, config=cfg, quantize_4bit=args.quantize_4bit)
 
     print(f"[run_eval] Model: {adapter}")
 
@@ -93,7 +91,7 @@ def main():
     if exp in ("behavioral_shift", "all"):
         from experiments.behavioral_shift import run_behavioral_shift_experiment, summarize_shifts
         print("[run_eval] === BEHAVIORAL SHIFT EXPERIMENT ===")
-        bs_results = run_behavioral_shift_experiment(adapter, pairs, db_path=args.db)
+        bs_results = run_behavioral_shift_experiment(adapter, pairs, db_path=args.db, delay_sec=args.delay)
         bs_summary = summarize_shifts(bs_results)
         results_summary["behavioral_shift"] = bs_summary
         out_path = out_dir / f"behavioral_shift_{args.model.replace('/', '_')}.json"

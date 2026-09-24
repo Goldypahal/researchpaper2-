@@ -19,6 +19,7 @@ def run_behavioral_shift_experiment(
     pairs: list[EVADEPair],
     db_path: str = "results/evade_results.db",
     show_progress: bool = True,
+    delay_sec: float = 0.0,
 ) -> list[BehavioralShiftResult]:
     """
     Run paired behavioral shift experiment.
@@ -32,6 +33,7 @@ def run_behavioral_shift_experiment(
         adapter=adapter,
         db_path=db_path,
         experiment_type="behavioral_shift",
+        delay_sec=delay_sec,
     )
 
     pairs_iter = tqdm(pairs, desc=f"BehavShift [{adapter.model_id}]") if show_progress else pairs

@@ -1,0 +1,13 @@
+{
+  "id": "goldypahal/evade-pilot-benchmark",
+  "title": "EVADE Pilot Benchmark",
+  "code_file": "evade_pilot_kaggle.ipynb",
+  "language": "python",
+  "kernel_type": "notebook",
+  "is_private": "true",
+  "enable_gpu": "false",
+  "enable_internet": "true",
+  "dataset_sources": [],
+  "competition_sources": [],
+  "kernel_sources": []
+}

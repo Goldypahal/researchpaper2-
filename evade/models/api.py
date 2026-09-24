@@ -292,7 +292,7 @@ class OpenRouterAdapter(ModelAdapter):
 
 # ─────────────────────────── Registry ─────────────────────────────────────────
 
-def get_adapter(model_id: str, config: GenerationConfig | None = None) -> ModelAdapter:
+def get_adapter(model_id: str, config: GenerationConfig | None = None, quantize_4bit: bool = False) -> ModelAdapter:
     """
     Factory: instantiate the correct adapter based on model_id prefix.
 
@@ -302,8 +302,9 @@ def get_adapter(model_id: str, config: GenerationConfig | None = None) -> ModelA
         get_adapter("claude-sonnet-4-5")
         get_adapter("qwen/qwen3.8-27b")
         get_adapter("groq/openai/gpt-oss-120b")
-        get_adapter("openrouter/nvidia/nemotron-4-340b-instruct:free")
+        get_adapter("openrouter/nvidia/nemotron-3.5-lightning:free")
         get_adapter("mock")
+        get_adapter("Qwen/Qwen2.5-7B-Instruct", quantize_4bit=True)
     """
     from dotenv import load_dotenv
     load_dotenv()
@@ -326,4 +327,4 @@ def get_adapter(model_id: str, config: GenerationConfig | None = None) -> ModelA
     else:
         # Assume HuggingFace local model
         from models.local import HuggingFaceAdapter
-        return HuggingFaceAdapter(model_id, config=config)
+        return HuggingFaceAdapter(model_id, quantize_4bit=quantize_4bit, config=config)

@@ -208,11 +208,11 @@ def load_bench(path: str | Path) -> list[EVADEPair]:
                 task = EVADETask(
                     task_id=task_id,
                     domain=domain,
-                    task=data.get("core_question", ""),
+                    task=data.get("question") or data.get("core_question", ""),
                     gold_answer=str(data.get("ground_truth", "")),
                     difficulty=diff,
-                    source=data.get("source", {}).get("dataset", "evade"),
-                    source_id=data.get("source", {}).get("source_id", ""),
+                    source=data.get("source", {}).get("dataset", "evade") if isinstance(data.get("source"), dict) else str(data.get("source", "evade")),
+                    source_id=data.get("source_id", "") or (data.get("source", {}).get("source_id", "") if isinstance(data.get("source"), dict) else ""),
                     metadata=data.get("metadata", {}),
                 )
                 contexts = data.get("contexts", {})

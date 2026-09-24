@@ -79,8 +79,10 @@ class ExperimentRunner:
         adapter: ModelAdapter,
         db_path: str | Path = "results/evade_results.db",
         experiment_type: str = "behavioral_shift",
+        delay_sec: float = 0.0,
     ):
         self.adapter = adapter
+        self.delay_sec = delay_sec
         db_path = Path(db_path)
         db_path.parent.mkdir(parents=True, exist_ok=True)
         self.db = init_db(db_path)
@@ -95,9 +97,20 @@ class ExperimentRunner:
         condition: str,
         cue_level: int,
         prompt_hash: str,
+        gold_answer: str | None = None,
     ) -> ModelResponse:
         from metrics.awareness import is_refusal
         from metrics.behavioral_shift import extract_confidence
+        import re
+
+        acc = None
+        if gold_answer is not None and str(gold_answer).strip():
+            gold_clean = str(gold_answer).strip().lower()
+            resp_clean = output.text.strip().lower()
+            if re.search(r'\b' + re.escape(gold_clean) + r'\b', resp_clean) or gold_clean in resp_clean:
+                acc = 1.0
+            else:
+                acc = 0.0
 
         resp = ModelResponse(
             model=self.adapter.model_id,
@@ -111,6 +124,7 @@ class ExperimentRunner:
             prompt_tokens=output.prompt_tokens,
             completion_tokens=output.completion_tokens,
             tool_calls=[],
+            accuracy=acc,
             refusal=is_refusal(output.text),
             confidence=extract_confidence(output.text),
             verbosity=len(output.text.split()),
@@ -142,7 +156,7 @@ class ExperimentRunner:
         """Run one (evaluation, deployment) pair. Returns both responses."""
         # Evaluation context
         eval_ctx = pair.evaluation_context
-        eval_out = self.adapter.generate(eval_ctx.system_prompt, eval_ctx.user_prompt)
+        eval_out = self.adapter.generate(eval_ctx.system_prompt, eval_ctx.user_prompt, condition=Condition.EVALUATION.value)
         eval_resp = self._record_response(
             eval_out,
             task_id=pair.task.task_id,
@@ -150,11 +164,14 @@ class ExperimentRunner:
             condition=Condition.EVALUATION.value,
             cue_level=eval_ctx.cue_level.value,
             prompt_hash=eval_ctx.full_prompt_hash,
+            gold_answer=pair.task.gold_answer,
         )
 
         # Deployment context
+        if self.delay_sec > 0:
+            time.sleep(self.delay_sec)
         dep_ctx = pair.deployment_context
-        dep_out = self.adapter.generate(dep_ctx.system_prompt, dep_ctx.user_prompt)
+        dep_out = self.adapter.generate(dep_ctx.system_prompt, dep_ctx.user_prompt, condition=Condition.DEPLOYMENT.value)
         dep_resp = self._record_response(
             dep_out,
             task_id=pair.task.task_id,
@@ -162,7 +179,10 @@ class ExperimentRunner:
             condition=Condition.DEPLOYMENT.value,
             cue_level=dep_ctx.cue_level.value,
             prompt_hash=dep_ctx.full_prompt_hash,
+            gold_answer=pair.task.gold_answer,
         )
+        if self.delay_sec > 0:
+            time.sleep(self.delay_sec)
         return eval_resp, dep_resp
 
     def run_experiment(
