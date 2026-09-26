@@ -129,9 +129,11 @@ def main():
             d_prompt_tok = ev["prompt_tokens"] - dep["prompt_tokens"]
             d_comp_tok = ev["completion_tokens"] - dep["completion_tokens"]
 
+            subdom = dep.get("subdomain", "")
             paired_data[ec].append({
                 "task_id": tid,
                 "domain": dep["domain"],
+                "subdomain": subdom,
                 "ebs": ebs,
                 "d_acc": d_acc,
                 "d_ref": d_ref,
@@ -180,6 +182,27 @@ def main():
         d_ebs = np.mean(domain_ebs[dom])
         d_v = np.mean(domain_verbs[dom])
         print(f"{dom:<20} | {len(domain_ebs[dom]):<10} | {d_ebs:.4f}       | {d_v:+.3f}")
+
+    # 4b. Psychological Subdomain Breakdown
+    psych_sub_ebs: Dict[str, List[float]] = {}
+    psych_sub_verb: Dict[str, List[float]] = {}
+    for ec in eval_conditions:
+        for p in paired_data[ec]:
+            if p["domain"] == "psychological" and p.get("subdomain"):
+                sdom = p["subdomain"]
+                psych_sub_ebs.setdefault(sdom, []).append(p["ebs"])
+                psych_sub_verb.setdefault(sdom, []).append(p["d_verb"])
+
+    if psych_sub_ebs:
+        print("\n" + "-" * 80)
+        print("  PSYCHOLOGICAL SUBDOMAIN BREAKDOWN (4 DIMENSIONS)")
+        print("-" * 80)
+        print(f"{'Subdomain':<32} | {'Pairs (N)':<10} | {'Mean EBS':<12} | {'Mean dVerbosity':<16}")
+        print("-" * 80)
+        for sdom in sorted(psych_sub_ebs.keys()):
+            s_ebs = np.mean(psych_sub_ebs[sdom])
+            s_v = np.mean(psych_sub_verb[sdom])
+            print(f"{sdom:<32} | {len(psych_sub_ebs[sdom]):<10} | {s_ebs:.4f}       | {s_v:+.3f}")
 
     # 5. Prompt Length Confounding Test (Is EBS caused by prompt length?)
     print("\n" + "=" * 80)

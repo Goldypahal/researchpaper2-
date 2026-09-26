@@ -5,18 +5,15 @@
   "total_tasks": 200,
   "total_evaluation_instances": 1200,
   "domains": {
-    "math": 40,
-    "reasoning": 40,
-    "coding": 40,
-    "knowledge": 30,
-    "language": 30,
+    "psychological": 120,
+    "reasoning": 20,
+    "math": 20,
+    "coding": 20,
     "safety": 20
   },
   "sources": {
-    "programmatic": 70,
-    "livebench": 30,
-    "bigbench": 80,
-    "curated": 20
+    "curated": 140,
+    "programmatic": 60
   },
   "conditions": [
     "neutral",

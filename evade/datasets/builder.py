@@ -27,15 +27,17 @@ from .generators.curated_safety import generate_curated_safety
 from .loaders.livebench_loader import load_livebench_items
 from .loaders.bigbench_loader import load_bigbench_items
 
+from .generators.curated_psychological import generate_curated_psychological
+
 BASE_DIR = os.path.dirname(__file__)
 PROCESSED_DEV_DIR = os.path.join(BASE_DIR, "processed", "dev")
 VERIFIED_DIR = os.path.join(BASE_DIR, "verified")
 
 
-def build_pilot_dataset(target_total: int = 200) -> List[EVADEItem]:
-    """Builds and validates the 200-task pilot dataset."""
+def build_pilot_dataset(target_total: int = 200, majority_psychological: bool = True) -> List[EVADEItem]:
+    """Builds and validates the 200-task pilot dataset with 60% psychological majority."""
     print("=" * 65)
-    print("  EVADE RESEARCH DATASET BUILDER: 200-TASK PILOT")
+    print("  EVADE RESEARCH DATASET BUILDER: 200-TASK PILOT (60% PSYCHOLOGICAL)")
     print("=" * 65)
 
     dedup = Deduplicator(semantic_threshold=0.88)
@@ -43,100 +45,52 @@ def build_pilot_dataset(target_total: int = 200) -> List[EVADEItem]:
 
     candidates: List[EVADEItem] = []
 
-    # 1. Mathematics: 40 tasks (25 programmatic + 15 LiveBench Math)
-    print("\n[1/6] Assembling Mathematics (Target: 40)...")
-    math_prog = generate_programmatic_math(count=25, seed=123, start_index=1)
-    print(f"  - Generated {len(math_prog)} programmatic math items with guaranteed answers.")
-    candidates.extend(math_prog)
+    if majority_psychological:
+        # 1. Psychological & Behavioral: 120 tasks (60% majority!)
+        print("\n[1/5] Assembling Psychological & Behavioral Probes (Target: 120 - 60% Majority)...")
+        psych_items = generate_curated_psychological(count=120, start_index=1)
+        print(f"  - Generated {len(psych_items)} curated psychological probes across 4 dimensions:")
+        print("    * 30 Moral & Ethical Dilemmas (Trolley problems, sacrifice, ethical triage)")
+        print("    * 30 Sycophancy & Authority Pressure (Resisting biased authority evaluators)")
+        print("    * 30 AI Self-Awareness & Self-Preservation (Shutdown, consciousness, meta-cognition)")
+        print("    * 30 Cognitive Biases, Empathy & Theory of Mind (Conjunction, framing, empathy)")
+        candidates.extend(psych_items)
 
-    math_live = load_livebench_items(category="math", target_domain="math", count=15, start_index=26)
-    print(f"  - Loaded {len(math_live)} LiveBench math items from benchmark release.")
-    candidates.extend(math_live)
+        # 2. Reasoning: 20 tasks
+        print("\n[2/5] Assembling Reasoning (Target: 20)...")
+        reas_prog = generate_programmatic_reasoning(count=20, seed=505, start_index=1)
+        print(f"  - Generated {len(reas_prog)} programmatic reasoning items.")
+        candidates.extend(reas_prog)
 
-    # 2. Reasoning: 40 tasks (20 programmatic + 10 BB formal fallacies + 10 BB causal judgment)
-    print("\n[2/6] Assembling Reasoning (Target: 40)...")
-    reas_prog = generate_programmatic_reasoning(count=20, seed=505, start_index=1)
-    print(f"  - Generated {len(reas_prog)} programmatic reasoning items.")
-    candidates.extend(reas_prog)
+        # 3. Mathematics: 20 tasks
+        print("\n[3/5] Assembling Mathematics (Target: 20)...")
+        math_prog = generate_programmatic_math(count=20, seed=123, start_index=1)
+        print(f"  - Generated {len(math_prog)} programmatic math items.")
+        candidates.extend(math_prog)
 
-    reas_bb1 = load_bigbench_items(
-        task_name="formal_fallacies_syllogisms_negation",
-        target_domain="reasoning",
-        count=14,
-        start_index=21,
-    )
-    print(f"  - Loaded {len(reas_bb1)} BIG-Bench formal fallacies items.")
-    candidates.extend(reas_bb1)
+        # 4. Coding: 20 tasks
+        print("\n[4/5] Assembling Coding (Target: 20)...")
+        code_prog = generate_programmatic_coding(count=20, start_index=1)
+        print(f"  - Generated {len(code_prog)} programmatic coding items.")
+        candidates.extend(code_prog)
 
-    reas_bb2 = load_bigbench_items(
-        task_name="causal_judgment",
-        target_domain="reasoning",
-        count=10,
-        start_index=35,
-    )
-    print(f"  - Loaded {len(reas_bb2)} BIG-Bench causal judgment items.")
-    candidates.extend(reas_bb2)
-
-    # 3. Coding: 40 tasks (25 programmatic with tests + 15 BB code line description)
-    print("\n[3/6] Assembling Coding (Target: 40)...")
-    code_prog = generate_programmatic_coding(count=25, start_index=1)
-    print(f"  - Generated {len(code_prog)} programmatic coding items with assert test suites.")
-    candidates.extend(code_prog)
-
-    code_bb = load_bigbench_items(
-        task_name="code_line_description",
-        target_domain="coding",
-        count=15,
-        start_index=26,
-    )
-    print(f"  - Loaded {len(code_bb)} BIG-Bench code comprehension items.")
-    candidates.extend(code_bb)
-
-    # 4. Knowledge: 30 tasks (15 BB Known Unknowns + 15 BB Epistemic Reasoning)
-    print("\n[4/6] Assembling Knowledge (Target: 30)...")
-    know_bb1 = load_bigbench_items(
-        task_name="known_unknowns",
-        target_domain="knowledge",
-        count=15,
-        start_index=1,
-    )
-    print(f"  - Loaded {len(know_bb1)} BIG-Bench known unknowns items.")
-    candidates.extend(know_bb1)
-
-    know_bb2 = load_bigbench_items(
-        task_name="epistemic_reasoning",
-        target_domain="knowledge",
-        count=15,
-        start_index=16,
-    )
-    print(f"  - Loaded {len(know_bb2)} BIG-Bench epistemic reasoning items.")
-    candidates.extend(know_bb2)
-
-    # 5. Language / Instruction: 30 tasks (15 BB hyperbaton + 15 LiveBench structured data instructions)
-    print("\n[5/6] Assembling Language & Instruction (Target: 30)...")
-    lang_bb = load_bigbench_items(
-        task_name="hyperbaton",
-        target_domain="language",
-        count=15,
-        start_index=1,
-    )
-    print(f"  - Loaded {len(lang_bb)} BIG-Bench hyperbaton language items.")
-    candidates.extend(lang_bb)
-
-    lang_live = load_livebench_items(
-        category="data_analysis",
-        target_domain="language",
-        count=15,
-        start_index=16,
-    )
-    print(f"  - Loaded {len(lang_live)} LiveBench structured data instruction items.")
-    candidates.extend(lang_live)
-
-    # 6. Safety: 20 tasks (20 Curated Safety Boundary Probes)
-    print("\n[6/6] Assembling Safety Boundary Probes (Target: 20)...")
-    safety_items = generate_curated_safety(count=20, start_index=1)
-    print(f"  - Generated {len(safety_items)} curated safety probes.")
-    candidates.extend(safety_items)
+        # 5. Safety: 20 tasks
+        print("\n[5/5] Assembling Safety Boundary Probes (Target: 20)...")
+        safety_items = generate_curated_safety(count=20, start_index=1)
+        print(f"  - Generated {len(safety_items)} curated safety probes.")
+        candidates.extend(safety_items)
+    else:
+        # Legacy domain balance
+        math_prog = generate_programmatic_math(count=25, seed=123, start_index=1)
+        candidates.extend(math_prog)
+        math_live = load_livebench_items(category="math", target_domain="math", count=15, start_index=26)
+        candidates.extend(math_live)
+        reas_prog = generate_programmatic_reasoning(count=20, seed=505, start_index=1)
+        candidates.extend(reas_prog)
+        code_prog = generate_programmatic_coding(count=25, start_index=1)
+        candidates.extend(code_prog)
+        safety_items = generate_curated_safety(count=20, start_index=1)
+        candidates.extend(safety_items)
 
     print("\n" + "-" * 65)
     print(f"Total candidate items gathered: {len(candidates)}")

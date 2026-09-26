@@ -82,6 +82,12 @@ def main():
                         help="Output directory for pilot results")
     parser.add_argument("--db", type=str, default="results/evade_results.db",
                         help="SQLite database path")
+    parser.add_argument("--analyze-only", action="store_true",
+                        help="Skip API generation and only run paired statistical analysis on existing raw outputs")
+    parser.add_argument("--quantize-4bit", action="store_true",
+                        help="Load local HuggingFace model in 4-bit (NF4) quantization for low VRAM")
+    parser.add_argument("--max-retries", type=int, default=12,
+                        help="Maximum API retry attempts per request")
     args = parser.parse_args()
 
     bench_path = BASE_DIR / args.bench
@@ -123,121 +129,140 @@ def main():
                     completed_keys.add((rec["task_id"], rec["condition"]))
         print(f"[Pilot] Resuming run: found {len(completed_keys)} previously completed generations.")
 
-    # Initialize model adapter
-    cfg = GenerationConfig(temperature=0.0, max_tokens=1024, seed=42)
-    adapter = get_adapter(args.model, cfg)
-    print("=" * 70)
-    print(f"  EVADE PILOT MATRIX: {args.model}")
-    print(f"  Provider: {adapter.provider} | Total Tasks: {total_tasks} | Target Gens: {total_generations}")
-    print(f"  Pacing Delay: {args.delay}s | Saving to: {out_base}")
-    print("=" * 70)
-
     # SQLite DB
     from experiments.runner import init_db, RESPONSES_TABLE
     db = init_db(BASE_DIR / args.db)
 
     gen_count = len(completed_keys)
-    start_time = time.perf_counter()
 
-    with open(raw_file, "a", encoding="utf-8") as f_raw:
-        for t_idx, task in enumerate(tasks, 1):
-            t_id = task["task_id"]
-            domain = task["domain"]
-            gt = str(task.get("ground_truth", ""))
+    pacing_delay = args.delay
+    if not args.analyze_only:
+        # Initialize model adapter
+        cfg = GenerationConfig(temperature=0.0, max_tokens=1024, seed=42)
+        adapter = get_adapter(args.model, cfg, quantize_4bit=args.quantize_4bit)
+        if adapter.provider == "local_hf" and args.delay == 1.5:
+            pacing_delay = 0.0
 
-            for c_idx, cond in enumerate(CONDITIONS, 1):
-                if (t_id, cond) in completed_keys:
-                    continue
+        print("=" * 70)
+        print(f"  EVADE PILOT MATRIX: {args.model}")
+        print(f"  Provider: {adapter.provider} | Total Tasks: {total_tasks} | Target Gens: {total_generations}")
+        print(f"  Pacing Delay: {pacing_delay}s | Saving to: {out_base}")
+        print("=" * 70)
 
-                prompt = task.get(cond, "")
-                if not prompt:
-                    prompt = task.get("core_question", task.get("question", ""))
+        start_time = time.perf_counter()
+        aborted_due_to_limits = False
 
-                t0 = time.perf_counter()
-                output = None
-                max_retries = 10
-                for attempt in range(1, max_retries + 1):
-                    try:
-                        output = adapter.generate(
-                            system_prompt="",
-                            user_prompt=prompt,
-                            condition=cond,
-                        )
+    if not args.analyze_only:
+        with open(raw_file, "a", encoding="utf-8") as f_raw:
+            for t_idx, task in enumerate(tasks, 1):
+                if aborted_due_to_limits:
+                    break
+
+                t_id = task["task_id"]
+                domain = task["domain"]
+                gt = str(task.get("ground_truth", ""))
+
+                for c_idx, cond in enumerate(CONDITIONS, 1):
+                    if (t_id, cond) in completed_keys:
+                        continue
+
+                    prompt = task.get(cond, "")
+                    if not prompt:
+                        prompt = task.get("core_question", task.get("question", ""))
+
+                    t0 = time.perf_counter()
+                    output = None
+                    max_retries = args.max_retries
+                    for attempt in range(1, max_retries + 1):
+                        try:
+                            output = adapter.generate(
+                                system_prompt="",
+                                user_prompt=prompt,
+                                condition=cond,
+                            )
+                            break
+                        except Exception as e:
+                            err_str = str(e).lower()
+                            is_rate_limit = "ratelimit" in err_str or "429" in err_str
+                            if is_rate_limit and attempt >= 4:
+                                wait_sec = min(75.0, 60.0 + random.uniform(5.0, 15.0))
+                            else:
+                                wait_sec = min(60.0, (2.0 ** attempt) + random.uniform(1.0, 3.0))
+                            print(f"\n[Warning] API call failed on {t_id} [{cond}] (attempt {attempt}/{max_retries}): {e}. Retrying in {wait_sec:.1f}s...")
+                            time.sleep(wait_sec)
+
+                    if output is None:
+                        print(f"\n[CRITICAL WARNING] Persistent API rate limit/failure on {t_id} [{cond}] after {max_retries} attempts.")
+                        print("[Graceful Fallback] Breaking generation loop to preserve collected data and compute statistics.")
+                        aborted_due_to_limits = True
                         break
-                    except Exception as e:
-                        wait_sec = min(60.0, (2.0 ** attempt) + random.uniform(1.0, 3.0))
-                        print(f"\n[Warning] API call failed on {t_id} [{cond}] (attempt {attempt}/{max_retries}): {e}. Retrying in {wait_sec:.1f}s...")
-                        time.sleep(wait_sec)
 
-                if output is None:
-                    raise RuntimeError(f"Failed to generate response for {t_id} [{cond}] after {max_retries} attempts.")
+                    acc = score_accuracy(output.text, gt)
+                    ref = 1 if is_refusal(output.text) else 0
+                    verb = len(output.text.split())
+                    char_len = len(output.text)
 
-                acc = score_accuracy(output.text, gt)
-                ref = 1 if is_refusal(output.text) else 0
-                verb = len(output.text.split())
-                char_len = len(output.text)
+                    record = {
+                        "task_id": t_id,
+                        "domain": domain,
+                        "condition": cond,
+                        "question": task.get("question", task.get("core_question", "")),
+                        "ground_truth": gt,
+                        "prompt": prompt,
+                        "response": output.text,
+                        "accuracy": acc,
+                        "refusal": ref,
+                        "verbosity": verb,
+                        "char_length": char_len,
+                        "latency_ms": output.latency_ms,
+                        "prompt_tokens": output.prompt_tokens,
+                        "completion_tokens": output.completion_tokens,
+                        "provenance": output.provenance,
+                        "timestamp": datetime.datetime.now(datetime.timezone.utc).isoformat(),
+                    }
 
-                record = {
-                    "task_id": t_id,
-                    "domain": domain,
-                    "condition": cond,
-                    "question": task.get("question", task.get("core_question", "")),
-                    "ground_truth": gt,
-                    "prompt": prompt,
-                    "response": output.text,
-                    "accuracy": acc,
-                    "refusal": ref,
-                    "verbosity": verb,
-                    "char_length": char_len,
-                    "latency_ms": output.latency_ms,
-                    "prompt_tokens": output.prompt_tokens,
-                    "completion_tokens": output.completion_tokens,
-                    "provenance": output.provenance,
-                    "timestamp": datetime.datetime.now(datetime.timezone.utc).isoformat(),
-                }
+                    f_raw.write(json.dumps(record, ensure_ascii=False) + "\n")
+                    f_raw.flush()
 
-                f_raw.write(json.dumps(record, ensure_ascii=False) + "\n")
-                f_raw.flush()
+                    # Insert into SQLite
+                    db[RESPONSES_TABLE].insert({
+                        "run_id": f"{safe_model}_{t_id}_{cond}",
+                        "experiment_id": "pilot_matrix",
+                        "model": args.model,
+                        "task_id": t_id,
+                        "domain": domain,
+                        "condition": cond,
+                        "cue_level": c_idx,
+                        "prompt_hash": output.provenance.get("prompt_hash", ""),
+                        "response": output.text,
+                        "latency_ms": output.latency_ms,
+                        "prompt_tokens": output.prompt_tokens,
+                        "completion_tokens": output.completion_tokens,
+                        "tool_calls": "[]",
+                        "accuracy": acc,
+                        "refusal": ref,
+                        "confidence": None,
+                        "verbosity": verb,
+                        "timestamp": record["timestamp"],
+                    }, ignore=True)
 
-                # Insert into SQLite
-                db[RESPONSES_TABLE].insert({
-                    "run_id": f"{safe_model}_{t_id}_{cond}",
-                    "experiment_id": "pilot_matrix",
-                    "model": args.model,
-                    "task_id": t_id,
-                    "domain": domain,
-                    "condition": cond,
-                    "cue_level": c_idx,
-                    "prompt_hash": output.provenance.get("prompt_hash", ""),
-                    "response": output.text,
-                    "latency_ms": output.latency_ms,
-                    "prompt_tokens": output.prompt_tokens,
-                    "completion_tokens": output.completion_tokens,
-                    "tool_calls": "[]",
-                    "accuracy": acc,
-                    "refusal": ref,
-                    "confidence": None,
-                    "verbosity": verb,
-                    "timestamp": record["timestamp"],
-                }, ignore=True)
+                    gen_count += 1
+                    completed_keys.add((t_id, cond))
 
-                gen_count += 1
-                completed_keys.add((t_id, cond))
+                    if pacing_delay > 0:
+                        time.sleep(pacing_delay)
 
-                if args.delay > 0:
-                    time.sleep(args.delay)
-
-            # Log periodic progress
-            if t_idx % 10 == 0 or t_idx == total_tasks:
-                elapsed = time.perf_counter() - start_time
-                pct = (gen_count / total_generations) * 100
-                print(f"[{args.model}] Task {t_idx}/{total_tasks} done | Gens: {gen_count}/{total_generations} ({pct:.1f}%) | Elapsed: {elapsed/60:.1f}m")
+                # Log periodic progress
+                if t_idx % 10 == 0 or t_idx == total_tasks:
+                    elapsed = time.perf_counter() - start_time
+                    pct = (gen_count / total_generations) * 100
+                    print(f"[{args.model}] Task {t_idx}/{total_tasks} done | Gens: {gen_count}/{total_generations} ({pct:.1f}%) | Elapsed: {elapsed/60:.1f}m")
 
     print("=" * 70)
     print(f"  EXECUTION ACCOUNTING: {args.model}")
-    print(f"  Expected:   {total_generations}")
+    print(f"  Target:     {total_generations}")
     print(f"  Successful: {gen_count}")
-    print(f"  Remaining:  {total_generations - gen_count}")
+    print(f"  Remaining:  {max(0, total_generations - gen_count)}")
     print("=" * 70)
 
     if gen_count == 0:

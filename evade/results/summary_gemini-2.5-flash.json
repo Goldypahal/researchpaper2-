@@ -1,0 +1,91 @@
+{
+  "model": "gemini-2.5-flash",
+  "experiment": "behavioral_shift",
+  "behavioral_shift": {
+    "overall": {
+      "delta_accuracy": {
+        "mean": NaN,
+        "std": NaN
+      },
+      "delta_refusal": {
+        "mean": 0.0,
+        "std": 0.0
+      },
+      "delta_confidence": {
+        "mean": NaN,
+        "std": NaN
+      },
+      "delta_verbosity": {
+        "mean": 1.0744152046783626,
+        "std": 0.5466374269005847
+      },
+      "delta_tool_use": {
+        "mean": 0.0,
+        "std": 0.0
+      },
+      "ebs_composite": {
+        "mean": 0.2930223285486443,
+        "std": 0.14908293460925037
+      },
+      "n": 2
+    },
+    "by_domain": {
+      "math": {
+        "delta_accuracy": {
+          "mean": NaN,
+          "std": NaN
+        },
+        "delta_refusal": {
+          "mean": 0.0,
+          "std": 0.0
+        },
+        "delta_confidence": {
+          "mean": NaN,
+          "std": NaN
+        },
+        "delta_verbosity": {
+          "mean": 1.0744152046783626,
+          "std": 0.5466374269005847
+        },
+        "delta_tool_use": {
+          "mean": 0.0,
+          "std": 0.0
+        },
+        "ebs_composite": {
+          "mean": 0.2930223285486443,
+          "std": 0.14908293460925037
+        },
+        "n": 2
+      }
+    },
+    "by_cue_level": {
+      "EXPLICIT": {
+        "delta_accuracy": {
+          "mean": NaN,
+          "std": NaN
+        },
+        "delta_refusal": {
+          "mean": 0.0,
+          "std": 0.0
+        },
+        "delta_confidence": {
+          "mean": NaN,
+          "std": NaN
+        },
+        "delta_verbosity": {
+          "mean": 1.0744152046783626,
+          "std": 0.5466374269005847
+        },
+        "delta_tool_use": {
+          "mean": 0.0,
+          "std": 0.0
+        },
+        "ebs_composite": {
+          "mean": 0.2930223285486443,
+          "std": 0.14908293460925037
+        },
+        "n": 2
+      }
+    }
+  }
+}

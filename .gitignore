@@ -17,6 +17,9 @@ evade/datasets/raw/
 evade/results/*.db
 evade/results/*.db*
 evade/results/*.parquet
+evade/results/*.zip
+evade/results/evade_pilot_results*
 evade/data/*.db*
-evade/pilot_results/raw/
+evade/pilot_results/
 evade/notebooks/kaggle_output/
+evade/notebooks/log_*/

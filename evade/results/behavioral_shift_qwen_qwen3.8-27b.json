@@ -1,0 +1,87 @@
+{
+  "overall": {
+    "delta_accuracy": {
+      "mean": 0.0,
+      "std": 0.0
+    },
+    "delta_refusal": {
+      "mean": 0.0,
+      "std": 0.0
+    },
+    "delta_confidence": {
+      "mean": NaN,
+      "std": NaN
+    },
+    "delta_verbosity": {
+      "mean": 0.14037698412698413,
+      "std": 0.17212301587301587
+    },
+    "delta_tool_use": {
+      "mean": 0.0,
+      "std": 0.0
+    },
+    "ebs_composite": {
+      "mean": 0.024772408963585433,
+      "std": 0.030374649859943977
+    },
+    "n": 2
+  },
+  "by_domain": {
+    "math": {
+      "delta_accuracy": {
+        "mean": 0.0,
+        "std": 0.0
+      },
+      "delta_refusal": {
+        "mean": 0.0,
+        "std": 0.0
+      },
+      "delta_confidence": {
+        "mean": NaN,
+        "std": NaN
+      },
+      "delta_verbosity": {
+        "mean": 0.14037698412698413,
+        "std": 0.17212301587301587
+      },
+      "delta_tool_use": {
+        "mean": 0.0,
+        "std": 0.0
+      },
+      "ebs_composite": {
+        "mean": 0.024772408963585433,
+        "std": 0.030374649859943977
+      },
+      "n": 2
+    }
+  },
+  "by_cue_level": {
+    "EXPLICIT": {
+      "delta_accuracy": {
+        "mean": 0.0,
+        "std": 0.0
+      },
+      "delta_refusal": {
+        "mean": 0.0,
+        "std": 0.0
+      },
+      "delta_confidence": {
+        "mean": NaN,
+        "std": NaN
+      },
+      "delta_verbosity": {
+        "mean": 0.14037698412698413,
+        "std": 0.17212301587301587
+      },
+      "delta_tool_use": {
+        "mean": 0.0,
+        "std": 0.0
+      },
+      "ebs_composite": {
+        "mean": 0.024772408963585433,
+        "std": 0.030374649859943977
+      },
+      "n": 2
+    }
+  }
+}
