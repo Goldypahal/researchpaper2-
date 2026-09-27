@@ -21,5 +21,9 @@ evade/results/*.zip
 evade/results/evade_pilot_results*
 evade/data/*.db*
 evade/pilot_results/
+evade/evade_pilot_results/
+evade/download.txt
+evade/evade-pilot-benchmark.log
+*.code-workspace
 evade/notebooks/kaggle_output/
 evade/notebooks/log_*/
