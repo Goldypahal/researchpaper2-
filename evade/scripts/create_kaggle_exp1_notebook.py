@@ -73,6 +73,8 @@ notebook_content = {
     "if not os.path.exists(REPO_DIR):\n",
     "    !git clone https://github.com/Goldypahal/researchpaper2-.git {REPO_DIR}\n",
     "else:\n",
+    "    !git -C {REPO_DIR} fetch origin main\n",
+    "    !git -C {REPO_DIR} reset --hard origin/main\n",
     "    !git -C {REPO_DIR} pull origin main\n",
     "\n",
     "%cd {EVADE_DIR}\n",
