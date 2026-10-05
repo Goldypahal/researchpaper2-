@@ -14,8 +14,10 @@ evade/datasets/private/
 evade/datasets/raw/
 
 # Large local databases and raw temporary caches
-evade/results/*.db
-evade/results/*.db*
+*.db
+*.db*
+*.sqlite
+*.sqlite3
 evade/results/*.parquet
 evade/results/*.zip
 evade/results/evade_pilot_results*

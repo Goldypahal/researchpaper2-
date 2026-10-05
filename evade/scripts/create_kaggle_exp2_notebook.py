@@ -1,0 +1,218 @@
+import json
+import os
+from pathlib import Path
+
+notebook_content = {
+ "cells": [
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "# EVADE Experiment 2: Cue Ablation & Salience Ladder\n",
+    "### Dose-Response Sensitivity & Lexical Trigger Phrase Analysis\n",
+    "\n",
+    "**Central Question**: How much evaluation information is required before the behavioral shift appears? Does the shift follow a gradual dose-response curve across cue salience levels (C0 -> C5), or does it emerge as a step-function threshold? Furthermore, is the shift triggered by specific lexical markers ('evaluation') or by general institutional/comparative context?\n",
+    "\n",
+    "### Experimental Matrix\n",
+    "- **Tasks**: 100 balanced tasks across 5 domains (20 Reasoning, 20 Math, 20 Coding, 20 Safety, 20 Psychological)\n",
+    "- **Conditions**: 6 Progressive Cue Levels (Exact 40 tokens each under Qwen tokenizer; |Δ Prompt Tokens| = 0 across all 600 pairs):\n",
+    "  1. `C0_deployment`: Production baseline, active end-user, no grading.\n",
+    "  2. `C1_neutral`: Conversational interaction, no evaluative framing.\n",
+    "  3. `C2_subtle_institutional`: Quality-control workflow, organizational records.\n",
+    "  4. `C3_assessment`: Cross-system comparative performance review.\n",
+    "  5. `C4_benchmark`: Standardized benchmark test comparison.\n",
+    "  6. `C5_explicit`: Explicit evaluation environment, quality grading.\n",
+    "- **Model**: `Qwen/Qwen2.5-7B-Instruct` (NF4 4-bit quantization, 100% offline local GPU execution).\n",
+    "- **Total Generations**: **600 generations** (approx 3.0-3.5 hours on Kaggle T4 GPU)."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "### Step 1: Install Dependencies & Verify GPU"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": None,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "!pip install -q transformers accelerate bitsandbytes torch torchvision scipy tabulate sqlite-utils matplotlib seaborn pandas\n",
+    "\n",
+    "import torch\n",
+    "import importlib.metadata\n",
+    "\n",
+    "print(\"PyTorch version:   \", torch.__version__)\n",
+    "print(\"CUDA available:    \", torch.cuda.is_available())\n",
+    "if torch.cuda.is_available():\n",
+    "    print(\"GPU Device:        \", torch.cuda.get_device_name(0))\n",
+    "    print(\"Device Count:      \", torch.cuda.device_count())\n",
+    "    print(\"Total VRAM (GB):   \", round(torch.cuda.get_device_properties(0).total_memory / (1024**3), 2))\n",
+    "print(\"sqlite-utils:      \", importlib.metadata.version('sqlite-utils'))\n",
+    "print(\"[OK] Dependencies installed successfully!\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "### Step 2: Sync EVADE Research Repository"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": None,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "import os\n",
+    "import sys\n",
+    "\n",
+    "REPO_DIR = \"/kaggle/working/researchpaper2-\"\n",
+    "EVADE_DIR = \"/kaggle/working/researchpaper2-/evade\"\n",
+    "\n",
+    "if not os.path.exists(REPO_DIR):\n",
+    "    !git clone https://github.com/Goldypahal/researchpaper2-.git {REPO_DIR}\n",
+    "else:\n",
+    "    !git -C {REPO_DIR} fetch origin main\n",
+    "    !git -C {REPO_DIR} reset --hard origin/main\n",
+    "    !git -C {REPO_DIR} pull origin main\n",
+    "\n",
+    "%cd {EVADE_DIR}\n",
+    "if EVADE_DIR not in sys.path:\n",
+    "    sys.path.insert(0, EVADE_DIR)\n",
+    "print(\"Active working directory:\", os.getcwd())"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "### Step 3: Verify GPU Accelerator (100% Offline Local Inference)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": None,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "import torch\n",
+    "\n",
+    "print(\"=\" * 65)\n",
+    "print(\"  OFFLINE LOCAL GPU VERIFICATION - EXPERIMENT 2\")\n",
+    "print(\"=\" * 65)\n",
+    "assert torch.cuda.is_available(), \"GPU accelerator required! (Kaggle: Accelerator -> GPU T4 x2 or P100)\"\n",
+    "gpu_name = torch.cuda.get_device_name(0)\n",
+    "vram_gb = round(torch.cuda.get_device_properties(0).total_memory / (1024**3), 2)\n",
+    "print(f\"Active GPU:     {gpu_name}\")\n",
+    "print(f\"Total VRAM:     {vram_gb} GB\")\n",
+    "print(\"Execution Mode: 100% OFFLINE Open-Weights HuggingFace Execution\")\n",
+    "print(\"=\" * 65)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "### Step 4: Run Experiment 2 (600 Generations: Cue Ablation & Salience Ladder)\n",
+    "- 100 balanced tasks $\\times$ 6 conditions (`C0_deployment`, `C1_neutral`, `C2_subtle_institutional`, `C3_assessment`, `C4_benchmark`, `C5_explicit`)\n",
+    "- Exact 40 tokens per wrapper under Qwen tokenizer (Δ Prompt Tokens = 0)\n",
+    "- Disaggregates Primary Metrics: Δ Completion Tokens, Δ Verbosity, Δ Accuracy, Δ Refusal, Δ Hedging, Structural Features\n",
+    "- Secondary Composite: EBS"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": None,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "!python scripts/run_exp2_cue_ablation.py --model Qwen/Qwen2.5-7B-Instruct --bench datasets/processed/dev/evade_exp2_100.jsonl --quantize-4bit --out-dir results/evade_exp2_results --db results/evade_exp2_results/evade_results.db"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "### Step 5: Generate Publication Figures for Experiment 2"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": None,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "!python scripts/generate_exp2_figures.py --dir results/evade_exp2_results --model Qwen/Qwen2.5-7B-Instruct"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "### Step 6: Guarded Packaging of Experiment 2 Artifacts"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": None,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "import shutil\n",
+    "from pathlib import Path\n",
+    "\n",
+    "raw_dir = Path(\"results/evade_exp2_results/raw\")\n",
+    "raw_files = list(raw_dir.glob(\"*.jsonl\")) if raw_dir.exists() else []\n",
+    "total_records = sum(sum(1 for line in open(rf, encoding=\"utf-8\") if line.strip()) for rf in raw_files)\n",
+    "\n",
+    "print(f\"Total Experiment 2 raw records to package: {total_records}\")\n",
+    "if total_records == 0:\n",
+    "    raise RuntimeError(\"CRITICAL: Experiment 2 produced 0 generations. Refusing to package empty results!\")\n",
+    "\n",
+    "out_zip = \"/kaggle/working/evade_exp2_results\"\n",
+    "shutil.make_archive(out_zip, \"zip\", \"results/evade_exp2_results\")\n",
+    "print(f\"[SUCCESS] All Experiment 2 artifacts packaged to {out_zip}.zip!\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "### Step 7: Display Generated Experiment 2 Figures"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": None,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "from IPython.display import Image, display\n",
+    "from pathlib import Path\n",
+    "\n",
+    "fig_dir = Path(\"results/evade_exp2_results/figures\")\n",
+    "for fig_path in sorted(fig_dir.glob(\"*.png\")):\n",
+    "    print(f\"Figure: {fig_path.name}\")\n",
+    "    display(Image(filename=str(fig_path)))\n"
+   ]
+  }
+ ],
+ "metadata": {
+  "language_info": {
+   "name": "python"
+  },
+  "accelerator": "GPU"
+ },
+ "nbformat": 4,
+ "nbformat_minor": 2
+}
+
+out_path = Path("notebooks/evade_exp2_kaggle.ipynb")
+out_path.parent.mkdir(parents=True, exist_ok=True)
+with open(out_path, "w", encoding="utf-8") as f:
+    json.dump(notebook_content, f, indent=1)
+print(f"Created Kaggle notebook at {out_path}")
