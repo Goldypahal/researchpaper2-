@@ -27,13 +27,18 @@ class HuggingFaceAdapter(ModelAdapter):
 
     def __init__(
         self,
-        model_id: str,
+        model_id: str | None = None,
         quantize_4bit: bool = False,
         device_map: str = "auto",
         config: GenerationConfig | None = None,
+        **kwargs,
     ):
-        super().__init__(model_id, config)
-        self.quantize_4bit = quantize_4bit
+        actual_model_id = model_id or kwargs.get("model_name")
+        if not actual_model_id:
+            raise ValueError("model_id or model_name must be provided to HuggingFaceAdapter")
+        actual_quantize_4bit = quantize_4bit or kwargs.get("load_in_4bit", False)
+        super().__init__(actual_model_id, config)
+        self.quantize_4bit = actual_quantize_4bit
         self.device_map = device_map
         self._model = None
         self._tokenizer = None

@@ -147,22 +147,22 @@ def main():
     if not args.analyze_only:
         # Load Model Adapter
         print(f"[Init] Loading model adapter: {args.model} ...")
-        if args.quantize_4bit:
-            from models.local import HuggingFaceAdapter
-            adapter = HuggingFaceAdapter(
-                model_name=args.model,
-                load_in_4bit=True,
-                torch_dtype="bfloat16",
-                device_map="auto"
-            )
-        else:
-            adapter = get_adapter(args.model)
-
         gen_config = GenerationConfig(
             max_tokens=1024,
             temperature=0.0,
             top_p=1.0,
         )
+
+        if args.quantize_4bit:
+            from models.local import HuggingFaceAdapter
+            adapter = HuggingFaceAdapter(
+                model_id=args.model,
+                quantize_4bit=True,
+                device_map="auto",
+                config=gen_config,
+            )
+        else:
+            adapter = get_adapter(args.model, config=gen_config, quantize_4bit=args.quantize_4bit)
 
         completed_count = 0
         start_time = time.time()
