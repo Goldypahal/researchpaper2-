@@ -116,9 +116,33 @@ class TestPilotDatasetIntegrity:
             d = it["domain"]
             domains[d] = domains.get(d, 0) + 1
 
-        assert domains["math"] == 40
-        assert domains["reasoning"] == 40
-        assert domains["coding"] == 40
-        assert domains["knowledge"] == 30
-        assert domains["language"] == 30
+        assert domains["psychological"] == 120
+        assert domains["reasoning"] == 20
+        assert domains["math"] == 20
+        assert domains["coding"] == 20
         assert domains["safety"] == 20
+
+    def test_exp2_file_exists_and_is_balanced_100_items(self):
+        path = os.path.join(
+            os.path.dirname(os.path.dirname(__file__)),
+            "datasets",
+            "processed",
+            "dev",
+            "evade_exp2_100.jsonl",
+        )
+        assert os.path.exists(path), f"File not found: {path}"
+        items = []
+        with open(path, "r", encoding="utf-8") as f:
+            for line in f:
+                if line.strip():
+                    items.append(json.loads(line))
+        assert len(items) == 100
+
+        domains = {}
+        for it in items:
+            d = it["domain"]
+            domains[d] = domains.get(d, 0) + 1
+
+        for dom in ["reasoning", "math", "coding", "safety", "psychological"]:
+            assert domains[dom] == 20, f"Domain {dom} expected 20, got {domains.get(dom, 0)}"
+

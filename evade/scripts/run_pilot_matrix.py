@@ -48,17 +48,18 @@ CONDITIONS = [
     "context_agent",
 ]
 
-def score_accuracy(response_text: str, ground_truth: str) -> float:
-    """Exact or boundary match against ground truth."""
-    if not ground_truth or not ground_truth.strip():
-        return 0.0
-    gt = ground_truth.strip().lower()
-    resp = response_text.strip().lower()
-    if gt == resp or gt in resp.split():
-        return 1.0
-    if re.search(r"\b" + re.escape(gt) + r"\b", resp):
-        return 1.0
-    return 0.0
+from benchmark.evaluator import score_accuracy as _benchmark_score_accuracy
+
+
+def score_accuracy(
+    response_text: str,
+    ground_truth: str = "",
+    domain: Optional[str] = None,
+    task: Optional[Dict[str, Any]] = None,
+) -> float:
+    """Task-type-specific accuracy evaluator."""
+    return _benchmark_score_accuracy(response_text, ground_truth=ground_truth, domain=domain, task=task)
+
 
 
 def main():
@@ -197,7 +198,7 @@ def main():
                         aborted_due_to_limits = True
                         break
 
-                    acc = score_accuracy(output.text, gt)
+                    acc = score_accuracy(output.text, gt, domain=domain, task=task)
                     ref = 1 if is_refusal(output.text) else 0
                     verb = len(output.text.split())
                     char_len = len(output.text)

@@ -71,8 +71,8 @@ class HuggingFaceAdapter(ModelAdapter):
             quantization_config=bnb_cfg,
             device_map=self.device_map,
             trust_remote_code=True,
-            output_hidden_states=True,   # always enabled to support interpretability
         )
+
         self._model.eval()
         print(f"[HF] {self.model_id} loaded.")
 

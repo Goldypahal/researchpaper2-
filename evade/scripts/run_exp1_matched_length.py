@@ -18,6 +18,7 @@ from __future__ import annotations
 
 import argparse
 import datetime
+import hashlib
 import json
 import os
 import random
@@ -26,6 +27,7 @@ import sys
 import time
 from pathlib import Path
 from typing import Any, Dict, List
+
 
 BASE_DIR = Path(__file__).parent.parent
 sys.path.insert(0, str(BASE_DIR))
@@ -163,7 +165,7 @@ def main():
                     )
                     lat_ms = (time.perf_counter() - t0) * 1000.0
 
-                    acc = score_accuracy(output.text, gt)
+                    acc = score_accuracy(output.text, gt, domain=domain, task=task)
                     ref = 1 if is_refusal(output.text) else 0
                     struct_feats = extract_structural_features(output.text)
 
@@ -193,6 +195,7 @@ def main():
                     completed_keys.add((t_id, cond))
 
                     # Insert to SQLite
+                    prompt_sha256 = hashlib.sha256(prompt.encode("utf-8")).hexdigest()
                     try:
                         db[RESPONSES_TABLE].insert({
                             "run_id": f"exp1_{safe_model}_{int(time.time())}",
@@ -202,7 +205,7 @@ def main():
                             "domain": domain,
                             "condition": cond,
                             "cue_level": 4 if "benchmark" in cond else (3 if "evaluation" in cond else 0),
-                            "prompt_hash": str(hash(prompt)),
+                            "prompt_hash": prompt_sha256,
                             "response": output.text,
                             "latency_ms": lat_ms,
                             "prompt_tokens": output.prompt_tokens,

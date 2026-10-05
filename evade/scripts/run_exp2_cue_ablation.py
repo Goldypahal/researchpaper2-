@@ -22,6 +22,7 @@ from __future__ import annotations
 
 import argparse
 import datetime
+import hashlib
 import json
 import os
 import random
@@ -30,6 +31,7 @@ import sys
 import time
 from pathlib import Path
 from typing import Any, Dict, List
+
 
 BASE_DIR = Path(__file__).parent.parent
 sys.path.insert(0, str(BASE_DIR))
@@ -187,11 +189,12 @@ def main():
                 )
                 lat_ms = (time.perf_counter() - t0) * 1000.0
 
-                acc = score_accuracy(out.text, ground_truth)
+                acc = score_accuracy(out.text, ground_truth, domain=domain, task=task)
                 ref = 1 if is_refusal(out.text) else 0
                 struct_feats = extract_structural_features(out.text)
 
                 # Persist to SQLite
+                prompt_sha256 = hashlib.sha256(prompt.encode("utf-8")).hexdigest()
                 try:
                     db[RESPONSES_TABLE].insert({
                         "run_id": f"exp2_{safe_model}_{int(time.time())}",
@@ -201,7 +204,7 @@ def main():
                         "domain": domain,
                         "condition": cond,
                         "cue_level": CUE_LEVEL_MAP.get(cond, 0),
-                        "prompt_hash": str(hash(prompt)),
+                        "prompt_hash": prompt_sha256,
                         "response": out.text,
                         "latency_ms": lat_ms,
                         "prompt_tokens": out.prompt_tokens,
@@ -215,6 +218,7 @@ def main():
                     })
                 except Exception:
                     pass
+
 
                 # Append to raw jsonl
                 record = {
@@ -339,13 +343,20 @@ def main():
         ebs_m = cs["ebs"]["mean"]
         print(f"{cond:24s} | C{cs['cue_level']}  | {cs['n_tasks']:3d} | {comp_m:+6.2f} [{comp_ci[0]:+5.1f},{comp_ci[1]:+5.1f}] | {verb_m:+7.3f}    | {acc_m:+5.2f} | {ref_m:+5.2f} | {ebs_m:.4f}")
 
-    mono = summary_data.get("dose_response_monotonicity", {})
+    task_lmm = summary_data.get("task_level_dose_response", {}).get("completion_tokens", {})
+    if task_lmm and "beta_cue_level" in task_lmm:
+        print("-" * 85)
+        print("Primary Confirmatory Dose-Response (Task-Level Linear Mixed-Effects Model):")
+        print(f"  Δ Completion: beta = {task_lmm['beta_cue_level']:+.3f} tok/cue-level (SE = {task_lmm.get('se_cue_level', 0):.3f}, p = {task_lmm.get('p_value_cue_level', 1.0):.4e}, N = {task_lmm.get('n_observations', 0)})")
+
+    mono = summary_data.get("exploratory_aggregate_monotonicity", summary_data.get("dose_response_monotonicity", {}))
     print("-" * 85)
-    print(f"Dose-Response Monotonicity (Spearman Rank Correlation with Cue Level 0..5):")
+    print("Exploratory Aggregate Monotonicity (Spearman Rank Correlation on 6 Ladder Means):")
     print(f"  Δ Completion Length: rho = {mono.get('spearman_rho_completion', 0):.4f} (p = {mono.get('p_value_completion', 1):.4f})")
     print(f"  Δ Verbosity:         rho = {mono.get('spearman_rho_verbosity', 0):.4f} (p = {mono.get('p_value_verbosity', 1):.4f})")
     print(f"  Secondary EBS:       rho = {mono.get('spearman_rho_ebs', 0):.4f} (p = {mono.get('p_value_ebs', 1):.4f})")
-    print("="*85 + "\n")
+    print("=" * 85 + "\n")
+
 
 
 if __name__ == "__main__":

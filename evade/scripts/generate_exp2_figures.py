@@ -148,7 +148,7 @@ def main():
     ax2_twin.set_ylabel("EBS Composite (0..1)", fontsize=11, fontweight="bold", color=COLORS["purple"])
     ax2_twin.tick_params(axis="y", labelcolor=COLORS["purple"])
 
-    mono = stats.get("dose_response_monotonicity", {})
+    mono = stats.get("exploratory_aggregate_monotonicity", stats.get("dose_response_monotonicity", {}))
     rho_c = mono.get("spearman_rho_completion", 0.0)
     ax2.set_title(f"Dose-Response Salience Ladder\nSpearman Monotonicity ρ = {rho_c:.3f}", fontsize=11, fontweight="bold", pad=10)
 

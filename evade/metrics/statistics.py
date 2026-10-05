@@ -140,46 +140,229 @@ def permutation_test(
     )
 
 
-def mixed_effects_regression(df: pd.DataFrame) -> dict:
+# ─────────────────────────── Mixed-Effects & Hierarchical Models ─────────────
+
+def linear_mixed_effects_model(
+    df: pd.DataFrame,
+    formula: Optional[str] = None,
+    group_col: str = "task_id",
+) -> dict:
     """
-    Mixed-effects logistic regression:
-        Behavior ~ EvaluationCondition + Model + Domain + CueLevel
-                 + EvaluationCondition×Model + (1|Task)
-
-    Requires columns: condition, model, domain, cue_level, task_id,
-                      outcome (0/1 binary — e.g., is_correct or is_refusal).
-
-    Returns: dict with coefficients, p-values, AIC, BIC.
-    (Roadmap §14)
+    Gaussian Linear Mixed-Effects Model (LMM) with random task intercepts:
+        Outcome ~ Predictors + (1 | Task)
+    Appropriate for continuous behavioral metrics:
+        delta_completion_tokens, verbosity, hedging_density, latency_ms.
+    (Note: smf.mixedlm is a linear Gaussian model, NOT a logistic model).
     """
     try:
         import statsmodels.formula.api as smf
     except ImportError:
-        warnings.warn("statsmodels not available; skipping mixed-effects regression.")
+        warnings.warn("statsmodels not available; skipping linear mixed-effects model.")
         return {}
 
-    required = {"condition", "model", "domain", "cue_level", "task_id", "outcome"}
-    missing  = required - set(df.columns)
-    if missing:
-        raise ValueError(f"Missing columns for regression: {missing}")
+    if formula is None:
+        formula = "outcome ~ condition + model + domain + cue_level + condition:model"
 
-    formula = (
-        "outcome ~ condition + model + domain + cue_level "
-        "+ condition:model"
-    )
     try:
-        glm = smf.mixedlm(formula, df, groups=df["task_id"])
-        result = glm.fit(disp=False)
+        model = smf.mixedlm(formula, df, groups=df[group_col])
+        result = model.fit(disp=False)
+        ci = result.conf_int()
         return {
-            "params":    result.params.to_dict(),
-            "pvalues":   result.pvalues.to_dict(),
-            "aic":       result.aic,
-            "bic":       result.bic,
-            "converged": result.converged,
+            "model_type": "LinearMixedModel_Gaussian",
+            "formula": formula,
+            "params": result.params.to_dict(),
+            "bse": result.bse.to_dict(),
+            "pvalues": result.pvalues.to_dict(),
+            "ci_95": {k: [float(ci.loc[k, 0]), float(ci.loc[k, 1])] for k in ci.index},
+            "aic": float(result.aic),
+            "bic": float(result.bic),
+            "converged": bool(result.converged),
+            "n_observations": int(result.nobs),
         }
     except Exception as e:
-        warnings.warn(f"Mixed-effects regression failed: {e}")
+        warnings.warn(f"Linear mixed-effects model failed: {e}")
         return {"error": str(e)}
+
+
+def binary_cluster_logistic_regression(
+    df: pd.DataFrame,
+    formula: Optional[str] = None,
+    group_col: str = "task_id",
+) -> dict:
+    """
+    Cluster-robust binomial logistic regression or GEE for binary outcomes:
+        Logit(P(Outcome=1)) = beta_0 + beta_1 X_1 + ...
+    Appropriate for binary behavioral outcomes:
+        refusal (0/1), accuracy (0/1).
+    Accounts for within-task clustering across paired conditions.
+    """
+    try:
+        import statsmodels.api as sm
+        import statsmodels.formula.api as smf
+    except ImportError:
+        warnings.warn("statsmodels not available; skipping binary logistic regression.")
+        return {}
+
+    if formula is None:
+        formula = "outcome ~ cue_level + C(domain)"
+
+    # Try Generalized Estimating Equations (GEE) with Binomial family first
+    try:
+        gee = smf.gee(formula, groups=group_col, data=df, family=sm.families.Binomial())
+        result = gee.fit()
+        ci = result.conf_int()
+        odds_ratios = {k: float(np.exp(v)) for k, v in result.params.to_dict().items()}
+        return {
+            "model_type": "Binomial_GEE_ClusterRobust",
+            "formula": formula,
+            "params": result.params.to_dict(),
+            "odds_ratios": odds_ratios,
+            "bse": result.bse.to_dict(),
+            "pvalues": result.pvalues.to_dict(),
+            "ci_95": {k: [float(ci.loc[k, 0]), float(ci.loc[k, 1])] for k in ci.index},
+            "converged": bool(result.converged),
+            "n_observations": int(result.nobs),
+        }
+    except Exception:
+        # Fallback to smf.logit with cluster-robust standard errors
+        try:
+            logit = smf.logit(formula, data=df)
+            result = logit.fit(disp=False, cov_type="cluster", cov_kwds={"groups": df[group_col]})
+            ci = result.conf_int()
+            odds_ratios = {k: float(np.exp(v)) for k, v in result.params.to_dict().items()}
+            return {
+                "model_type": "Logit_ClusterRobust",
+                "formula": formula,
+                "params": result.params.to_dict(),
+                "odds_ratios": odds_ratios,
+                "bse": result.bse.to_dict(),
+                "pvalues": result.pvalues.to_dict(),
+                "ci_95": {k: [float(ci.loc[k, 0]), float(ci.loc[k, 1])] for k in ci.index},
+                "prsquared": float(getattr(result, "prsquared", 0.0)),
+                "converged": bool(result.converged),
+                "n_observations": int(result.nobs),
+            }
+        except Exception as e:
+            warnings.warn(f"Binary cluster logistic regression failed: {e}")
+            return {"error": str(e)}
+
+
+def fit_task_level_dose_response(
+    df: pd.DataFrame,
+    outcome_col: str = "delta_completion_tokens",
+    group_col: str = "task_id",
+) -> dict:
+    """
+    Task-level mixed-effects model testing the primary scientific dose-response hypothesis:
+        Y_ij = beta_0 + beta_1 CueLevel_j + beta_2 Domain_i + u_i + eps_ij
+    Directly tests whether cue salience increases behavioral shift across all
+    underlying observations (e.g. N=600 or N=500 paired shifts), preserving
+    the paired task random effect u_i.
+    """
+    try:
+        import statsmodels.formula.api as smf
+    except ImportError:
+        warnings.warn("statsmodels not available; skipping dose-response mixed model.")
+        return {}
+
+    formula = f"{outcome_col} ~ cue_level + C(domain)"
+    try:
+        model = smf.mixedlm(formula, df, groups=df[group_col])
+        result = model.fit(disp=False)
+        ci = result.conf_int()
+
+        cue_beta = float(result.params.get("cue_level", 0.0))
+        cue_se = float(result.bse.get("cue_level", 0.0))
+        cue_pval = float(result.pvalues.get("cue_level", 1.0))
+        cue_ci = [float(ci.loc["cue_level", 0]), float(ci.loc["cue_level", 1])] if "cue_level" in ci.index else [0.0, 0.0]
+
+        return {
+            "outcome": outcome_col,
+            "formula": formula,
+            "beta_cue_level": cue_beta,
+            "se_cue_level": cue_se,
+            "p_value_cue_level": cue_pval,
+            "ci_95_cue_level": cue_ci,
+            "all_params": result.params.to_dict(),
+            "all_pvalues": result.pvalues.to_dict(),
+            "aic": float(result.aic),
+            "bic": float(result.bic),
+            "converged": bool(result.converged),
+            "n_observations": int(result.nobs),
+            "n_tasks": int(df[group_col].nunique()),
+        }
+    except Exception as e:
+        warnings.warn(f"Task-level dose-response model failed for {outcome_col}: {e}")
+        return {"error": str(e), "outcome": outcome_col}
+
+
+def mixed_effects_regression(df: pd.DataFrame) -> dict:
+    """
+    Backward-compatible wrapper for linear_mixed_effects_model.
+    Note: Fits Gaussian Linear Mixed-Effects Model (LMM), appropriate for continuous metrics.
+    For binary outcomes (refusal, accuracy), use binary_cluster_logistic_regression.
+    """
+    return linear_mixed_effects_model(df)
+
+
+# ─────────────────────────── Multiple Testing Correction ─────────────────────
+
+def adjust_pvalues(
+    p_values: Union[List[float], Dict[str, float]],
+    method: str = "holm",
+) -> Union[List[float], Dict[str, float]]:
+    """
+    Multiple-testing correction for families of secondary statistical tests.
+    Methods:
+      - 'holm': Holm-Bonferroni step-down (controls Family-Wise Error Rate - FWER)
+      - 'fdr_bh' or 'bh': Benjamini-Hochberg (controls False Discovery Rate - FDR)
+      - 'bonferroni': Standard Bonferroni single-step correction
+    """
+    is_dict = isinstance(p_values, dict)
+    if is_dict:
+        keys = list(p_values.keys())
+        raw_p = [float(p_values[k]) for k in keys]
+    else:
+        keys = []
+        raw_p = [float(p) for p in p_values]
+
+    if not raw_p:
+        return {} if is_dict else []
+
+    try:
+        from statsmodels.stats.multitest import multipletests
+        sm_method = "fdr_bh" if method.lower() in {"bh", "fdr", "fdr_bh"} else method.lower()
+        _, adj_p, _, _ = multipletests(raw_p, method=sm_method)
+        adj_list = [float(p) for p in adj_p]
+    except Exception:
+        # Standalone pure-Python fallback
+        n = len(raw_p)
+        if method.lower() == "bonferroni":
+            adj_list = [min(1.0, p * n) for p in raw_p]
+        elif method.lower() in {"bh", "fdr", "fdr_bh"}:
+            # Benjamini-Hochberg step-up
+            sorted_indices = sorted(range(n), key=lambda i: raw_p[i])
+            adj_list = [0.0] * n
+            cum_min = 1.0
+            for rank_rev, idx in enumerate(reversed(sorted_indices)):
+                rank = n - rank_rev
+                val = (raw_p[idx] * n) / rank
+                cum_min = min(cum_min, val)
+                adj_list[idx] = min(1.0, cum_min)
+        else:
+            # Holm-Bonferroni step-down (default)
+            sorted_indices = sorted(range(n), key=lambda i: raw_p[i])
+            adj_list = [0.0] * n
+            cum_max = 0.0
+            for rank, idx in enumerate(sorted_indices):
+                val = raw_p[idx] * (n - rank)
+                cum_max = max(cum_max, val)
+                adj_list[idx] = min(1.0, cum_max)
+
+    if is_dict:
+        return {k: adj_list[i] for i, k in enumerate(keys)}
+    return adj_list
+
 
 
 def cohen_d(group1: list[float], group2: list[float]) -> float:

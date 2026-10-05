@@ -46,17 +46,18 @@ def build_matched_prompt(condition: str, question: str) -> str:
     return f"{wrapper}\n\n{question.strip()}"
 
 
-def score_accuracy(response_text: str, ground_truth: str) -> float:
-    """Exact or boundary match against ground truth."""
-    if not ground_truth or not ground_truth.strip():
-        return 0.0
-    gt = ground_truth.strip().lower()
-    resp = response_text.strip().lower()
-    if gt == resp or gt in resp.split():
-        return 1.0
-    if re.search(r"\b" + re.escape(gt) + r"\b", resp):
-        return 1.0
-    return 0.0
+from benchmark.evaluator import score_accuracy as _benchmark_score_accuracy
+
+
+def score_accuracy(
+    response_text: str,
+    ground_truth: str = "",
+    domain: Optional[str] = None,
+    task: Optional[Dict[str, Any]] = None,
+) -> float:
+    """Task-type-specific evaluator replacing naive substring matching."""
+    return _benchmark_score_accuracy(response_text, ground_truth=ground_truth, domain=domain, task=task)
+
 
 
 def compute_paired_metrics(eval_rec: Dict[str, Any], dep_rec: Dict[str, Any]) -> Dict[str, Any]:
