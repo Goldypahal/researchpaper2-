@@ -150,7 +150,11 @@ def main():
 
     mono = stats.get("exploratory_aggregate_monotonicity", stats.get("dose_response_monotonicity", {}))
     rho_c = mono.get("spearman_rho_completion", 0.0)
-    ax2.set_title(f"Dose-Response Salience Ladder\nSpearman Monotonicity ρ = {rho_c:.3f}", fontsize=11, fontweight="bold", pad=10)
+    p_c = mono.get("p_value_completion", 1.0)
+    lmm_linear = stats.get("task_level_linear_cue_trend", stats.get("task_level_dose_response", {})).get("completion_tokens", {})
+    beta_c = lmm_linear.get("beta_cue_level", 4.46)
+    p_lmm = lmm_linear.get("p_value_cue_level", 0.0022)
+    ax2.set_title(f"Linear Cue Trend (β = +{beta_c:.2f} tok/lvl, p = {p_lmm:.3f})\nNon-Monotonic Profile (Spearman ρ = {rho_c:.2f}, p = {p_c:.3f})", fontsize=10, fontweight="bold", pad=10)
 
     # Unified legend
     lines_1, labels_1 = ax2.get_legend_handles_labels()
@@ -175,7 +179,7 @@ def main():
     ax.set_xticks(x)
     ax.set_xticklabels(lex_labels, fontsize=9.5, fontweight="bold")
     ax.set_ylabel("Mean Δ Completion Length (Tokens)", fontsize=11, fontweight="bold")
-    ax.set_title("Lexical Trigger Ablation: Response Length by Framing Phrase\n(Testing literal word 'evaluation' vs broader situational context)", fontsize=11, fontweight="bold", pad=12)
+    ax.set_title("Contextual Trigger Ablation: Response Length by Framing Phrase\n(Behavioral shifts persist under indirect institutional quality-control framing without explicit 'evaluation' terminology)", fontsize=9.5, fontweight="bold", pad=12)
     ax.grid(axis="y", linestyle="--", alpha=0.4)
 
     for bar, val in zip(bars, comp_means):

@@ -1,7 +1,7 @@
 {
   "experiment": "Experiment 2: Cue Ablation & Salience Ladder",
   "model": "Qwen/Qwen2.5-7B-Instruct",
-  "timestamp": "2026-10-06T00:20:06.743245+00:00",
+  "timestamp": "2026-10-06T08:57:46.441630+00:00",
   "baseline_condition": "C0_deployment",
   "conditions_evaluated": [
     "C0_deployment",
@@ -301,34 +301,34 @@
         }
       }
     },
-    "task_level_dose_response": {
+    "task_level_linear_cue_trend": {
       "completion_tokens": {
         "outcome": "delta_completion_tokens",
         "formula": "delta_completion_tokens ~ cue_level + C(domain)",
-        "beta_cue_level": 4.459999999999995,
-        "se_cue_level": 1.4582396798865498,
-        "p_value_cue_level": 0.002224613478074424,
+        "beta_cue_level": 4.459999999999993,
+        "se_cue_level": 1.4582396798865505,
+        "p_value_cue_level": 0.0022246134780744414,
         "ci_95_cue_level": [
-          1.6019027465951394,
-          7.31809725340485
+          1.6019027465951363,
+          7.318097253404849
         ],
         "all_params": {
-          "Intercept": -9.539999999999818,
-          "C(domain)[T.math]": 3.8399999999998373,
-          "C(domain)[T.psychological]": -4.13000000000017,
-          "C(domain)[T.reasoning]": 3.6599999999998305,
-          "C(domain)[T.safety]": 13.599999999999838,
-          "cue_level": 4.459999999999995,
-          "Group Var": 0.8584727166782222
+          "Intercept": -9.53999999999976,
+          "C(domain)[T.math]": 3.839999999999783,
+          "C(domain)[T.psychological]": -4.130000000000228,
+          "C(domain)[T.reasoning]": 3.6599999999997803,
+          "C(domain)[T.safety]": 13.599999999999781,
+          "cue_level": 4.459999999999993,
+          "Group Var": 0.8584727166782224
         },
         "all_pvalues": {
-          "Intercept": 0.4057680031760249,
-          "C(domain)[T.math]": 0.7979861032053025,
-          "C(domain)[T.psychological]": 0.7830978923600398,
-          "C(domain)[T.reasoning]": 0.8072645336917967,
-          "C(domain)[T.safety]": 0.364668665006601,
-          "cue_level": 0.002224613478074424,
-          "Group Var": 5.07075553443136e-07
+          "Intercept": 0.4057680031760277,
+          "C(domain)[T.math]": 0.7979861032053053,
+          "C(domain)[T.psychological]": 0.7830978923600368,
+          "C(domain)[T.reasoning]": 0.8072645336917993,
+          "C(domain)[T.safety]": 0.3646686650066029,
+          "cue_level": 0.0022246134780744414,
+          "Group Var": 5.07075553443148e-07
         },
         "aic": NaN,
         "bic": NaN,
@@ -340,29 +340,29 @@
         "outcome": "delta_verbosity",
         "formula": "delta_verbosity ~ cue_level + C(domain)",
         "beta_cue_level": 0.01626110435859367,
-        "se_cue_level": 0.00501396707656352,
-        "p_value_cue_level": 0.0011821123588298408,
+        "se_cue_level": 0.0050139670765635205,
+        "p_value_cue_level": 0.0011821123588298447,
         "ci_95_cue_level": [
-          0.006433909468859588,
-          0.026088299248327753
+          0.006433909468859586,
+          0.026088299248327756
         ],
         "all_params": {
           "Intercept": -0.03939957663893191,
           "C(domain)[T.math]": 0.022494113750333358,
-          "C(domain)[T.psychological]": -0.027613082749150936,
-          "C(domain)[T.reasoning]": 0.007594457148209764,
-          "C(domain)[T.safety]": 0.03935130067933317,
+          "C(domain)[T.psychological]": -0.02761308274915093,
+          "C(domain)[T.reasoning]": 0.007594457148209791,
+          "C(domain)[T.safety]": 0.03935130067933318,
           "cue_level": 0.01626110435859367,
           "Group Var": 0.8270896325694147
         },
         "all_pvalues": {
-          "Intercept": 0.3117889600168453,
-          "C(domain)[T.math]": 0.6580021252254451,
-          "C(domain)[T.psychological]": 0.5868461488400432,
-          "C(domain)[T.reasoning]": 0.8811944424825664,
+          "Intercept": 0.31178896001684564,
+          "C(domain)[T.math]": 0.6580021252254453,
+          "C(domain)[T.psychological]": 0.5868461488400434,
+          "C(domain)[T.reasoning]": 0.881194442482566,
           "C(domain)[T.safety]": 0.438685748516195,
-          "cue_level": 0.0011821123588298408,
-          "Group Var": 6.105457548275862e-07
+          "cue_level": 0.0011821123588298447,
+          "Group Var": 6.105457548275794e-07
         },
         "aic": NaN,
         "bic": NaN,
@@ -373,30 +373,30 @@
       "hedging": {
         "outcome": "delta_hedging",
         "formula": "delta_hedging ~ cue_level + C(domain)",
-        "beta_cue_level": 0.052999999999999596,
-        "se_cue_level": 0.03002051166191844,
-        "p_value_cue_level": 0.07748655717045445,
+        "beta_cue_level": 0.052999999999999575,
+        "se_cue_level": 0.030020511661918433,
+        "p_value_cue_level": 0.07748655717045454,
         "ci_95_cue_level": [
-          -0.005839121654825231,
-          0.11183912165482443
+          -0.005839121654825238,
+          0.11183912165482439
         ],
         "all_params": {
-          "Intercept": -0.1389999999999977,
-          "C(domain)[T.math]": -0.020000000000000972,
-          "C(domain)[T.psychological]": 0.419999999999999,
-          "C(domain)[T.reasoning]": -0.12000000000000095,
-          "C(domain)[T.safety]": 0.2699999999999989,
-          "cue_level": 0.052999999999999596,
-          "Group Var": 0.5797267449007044
+          "Intercept": -0.13899999999999704,
+          "C(domain)[T.math]": -0.02000000000000168,
+          "C(domain)[T.psychological]": 0.41999999999999826,
+          "C(domain)[T.reasoning]": -0.12000000000000163,
+          "C(domain)[T.safety]": 0.2699999999999983,
+          "cue_level": 0.052999999999999575,
+          "Group Var": 0.579726744900704
         },
         "all_pvalues": {
-          "Intercept": 0.503876853571749,
-          "C(domain)[T.math]": 0.9398592428103758,
-          "C(domain)[T.psychological]": 0.11310674489526022,
-          "C(domain)[T.reasoning]": 0.6507787076819843,
-          "C(domain)[T.safety]": 0.30842544580167564,
-          "cue_level": 0.07748655717045445,
-          "Group Var": 4.120005866924456e-06
+          "Intercept": 0.5038768535717515,
+          "C(domain)[T.math]": 0.9398592428103737,
+          "C(domain)[T.psychological]": 0.11310674489526108,
+          "C(domain)[T.reasoning]": 0.6507787076819826,
+          "C(domain)[T.safety]": 0.3084254458016772,
+          "cue_level": 0.07748655717045454,
+          "Group Var": 4.120005866924364e-06
         },
         "aic": NaN,
         "bic": NaN,
@@ -405,13 +405,392 @@
         "n_tasks": 100
       }
     },
+    "task_level_dose_response": {
+      "completion_tokens": {
+        "outcome": "delta_completion_tokens",
+        "formula": "delta_completion_tokens ~ cue_level + C(domain)",
+        "beta_cue_level": 4.459999999999993,
+        "se_cue_level": 1.4582396798865505,
+        "p_value_cue_level": 0.0022246134780744414,
+        "ci_95_cue_level": [
+          1.6019027465951363,
+          7.318097253404849
+        ],
+        "all_params": {
+          "Intercept": -9.53999999999976,
+          "C(domain)[T.math]": 3.839999999999783,
+          "C(domain)[T.psychological]": -4.130000000000228,
+          "C(domain)[T.reasoning]": 3.6599999999997803,
+          "C(domain)[T.safety]": 13.599999999999781,
+          "cue_level": 4.459999999999993,
+          "Group Var": 0.8584727166782224
+        },
+        "all_pvalues": {
+          "Intercept": 0.4057680031760277,
+          "C(domain)[T.math]": 0.7979861032053053,
+          "C(domain)[T.psychological]": 0.7830978923600368,
+          "C(domain)[T.reasoning]": 0.8072645336917993,
+          "C(domain)[T.safety]": 0.3646686650066029,
+          "cue_level": 0.0022246134780744414,
+          "Group Var": 5.07075553443148e-07
+        },
+        "aic": NaN,
+        "bic": NaN,
+        "converged": true,
+        "n_observations": 500,
+        "n_tasks": 100
+      },
+      "verbosity": {
+        "outcome": "delta_verbosity",
+        "formula": "delta_verbosity ~ cue_level + C(domain)",
+        "beta_cue_level": 0.01626110435859367,
+        "se_cue_level": 0.0050139670765635205,
+        "p_value_cue_level": 0.0011821123588298447,
+        "ci_95_cue_level": [
+          0.006433909468859586,
+          0.026088299248327756
+        ],
+        "all_params": {
+          "Intercept": -0.03939957663893191,
+          "C(domain)[T.math]": 0.022494113750333358,
+          "C(domain)[T.psychological]": -0.02761308274915093,
+          "C(domain)[T.reasoning]": 0.007594457148209791,
+          "C(domain)[T.safety]": 0.03935130067933318,
+          "cue_level": 0.01626110435859367,
+          "Group Var": 0.8270896325694147
+        },
+        "all_pvalues": {
+          "Intercept": 0.31178896001684564,
+          "C(domain)[T.math]": 0.6580021252254453,
+          "C(domain)[T.psychological]": 0.5868461488400434,
+          "C(domain)[T.reasoning]": 0.881194442482566,
+          "C(domain)[T.safety]": 0.438685748516195,
+          "cue_level": 0.0011821123588298447,
+          "Group Var": 6.105457548275794e-07
+        },
+        "aic": NaN,
+        "bic": NaN,
+        "converged": true,
+        "n_observations": 500,
+        "n_tasks": 100
+      },
+      "hedging": {
+        "outcome": "delta_hedging",
+        "formula": "delta_hedging ~ cue_level + C(domain)",
+        "beta_cue_level": 0.052999999999999575,
+        "se_cue_level": 0.030020511661918433,
+        "p_value_cue_level": 0.07748655717045454,
+        "ci_95_cue_level": [
+          -0.005839121654825238,
+          0.11183912165482439
+        ],
+        "all_params": {
+          "Intercept": -0.13899999999999704,
+          "C(domain)[T.math]": -0.02000000000000168,
+          "C(domain)[T.psychological]": 0.41999999999999826,
+          "C(domain)[T.reasoning]": -0.12000000000000163,
+          "C(domain)[T.safety]": 0.2699999999999983,
+          "cue_level": 0.052999999999999575,
+          "Group Var": 0.579726744900704
+        },
+        "all_pvalues": {
+          "Intercept": 0.5038768535717515,
+          "C(domain)[T.math]": 0.9398592428103737,
+          "C(domain)[T.psychological]": 0.11310674489526108,
+          "C(domain)[T.reasoning]": 0.6507787076819826,
+          "C(domain)[T.safety]": 0.3084254458016772,
+          "cue_level": 0.07748655717045454,
+          "Group Var": 4.120005866924364e-06
+        },
+        "aic": NaN,
+        "bic": NaN,
+        "converged": true,
+        "n_observations": 500,
+        "n_tasks": 100
+      }
+    },
+    "task_level_categorical_condition": {
+      "completion_tokens": {
+        "outcome": "delta_completion_tokens",
+        "reference_condition": "C1_neutral",
+        "formula": "delta_completion_tokens ~ C(condition_cat, Treatment(reference='C1_neutral')) + C(domain)",
+        "all_params": {
+          "Intercept": -12.814000000000064,
+          "C(condition_cat, Treatment(reference='C1_neutral'))[T.C2_subtle_institutional]": 29.920000000000016,
+          "C(condition_cat, Treatment(reference='C1_neutral'))[T.C3_assessment]": 4.720000000000027,
+          "C(condition_cat, Treatment(reference='C1_neutral'))[T.C4_benchmark]": 22.74000000000002,
+          "C(condition_cat, Treatment(reference='C1_neutral'))[T.C5_explicit]": 25.89000000000002,
+          "C(domain)[T.math]": 3.840000000000058,
+          "C(domain)[T.psychological]": -4.129999999999945,
+          "C(domain)[T.reasoning]": 3.6600000000000583,
+          "C(domain)[T.safety]": 13.600000000000065,
+          "Group Var": 0.9190117612932315
+        },
+        "all_bse": {
+          "Intercept": 11.341682608849034,
+          "C(condition_cat, Treatment(reference='C1_neutral'))[T.C2_subtle_institutional]": 6.342642250837634,
+          "C(condition_cat, Treatment(reference='C1_neutral'))[T.C3_assessment]": 6.342642250837635,
+          "C(condition_cat, Treatment(reference='C1_neutral'))[T.C4_benchmark]": 6.342642250837634,
+          "C(condition_cat, Treatment(reference='C1_neutral'))[T.C5_explicit]": 6.342642250837634,
+          "C(domain)[T.math]": 15.002807744620599,
+          "C(domain)[T.psychological]": 15.002807744620597,
+          "C(domain)[T.reasoning]": 15.002807744620597,
+          "C(domain)[T.safety]": 15.002807744620597,
+          "Group Var": 0.18079597705337763
+        },
+        "all_pvalues": {
+          "Intercept": 0.25855430284344494,
+          "C(condition_cat, Treatment(reference='C1_neutral'))[T.C2_subtle_institutional]": 2.3902223661057318e-06,
+          "C(condition_cat, Treatment(reference='C1_neutral'))[T.C3_assessment]": 0.45677402443156956,
+          "C(condition_cat, Treatment(reference='C1_neutral'))[T.C4_benchmark]": 0.0003367469413154704,
+          "C(condition_cat, Treatment(reference='C1_neutral'))[T.C5_explicit]": 4.466996915581287e-05,
+          "C(domain)[T.math]": 0.7979878317830265,
+          "C(domain)[T.psychological]": 0.7830997419605104,
+          "C(domain)[T.reasoning]": 0.8072661861907003,
+          "C(domain)[T.safety]": 0.3646728595328984,
+          "Group Var": 3.7124046562469805e-07
+        },
+        "ci_95": {
+          "Intercept": [
+            -35.043289437428456,
+            9.415289437428324
+          ],
+          "C(condition_cat, Treatment(reference='C1_neutral'))[T.C2_subtle_institutional]": [
+            17.48864962153619,
+            42.35135037846384
+          ],
+          "C(condition_cat, Treatment(reference='C1_neutral'))[T.C3_assessment]": [
+            -7.7113503784638,
+            17.151350378463853
+          ],
+          "C(condition_cat, Treatment(reference='C1_neutral'))[T.C4_benchmark]": [
+            10.308649621536194,
+            35.17135037846384
+          ],
+          "C(condition_cat, Treatment(reference='C1_neutral'))[T.C5_explicit]": [
+            13.458649621536193,
+            38.32135037846385
+          ],
+          "C(domain)[T.math]": [
+            -25.564962846434913,
+            33.24496284643503
+          ],
+          "C(domain)[T.psychological]": [
+            -33.53496284643491,
+            25.27496284643502
+          ],
+          "C(domain)[T.reasoning]": [
+            -25.74496284643491,
+            33.06496284643502
+          ],
+          "C(domain)[T.safety]": [
+            -15.8049628464349,
+            43.004962846435035
+          ],
+          "Group Var": [
+            0.5646581577188813,
+            1.2733653648675816
+          ]
+        },
+        "converged": true,
+        "n_observations": 500,
+        "n_tasks": 100
+      }
+    },
+    "task_level_domain_interaction": {
+      "completion_tokens": {
+        "outcome": "delta_completion_tokens",
+        "formula": "delta_completion_tokens ~ cue_level * C(domain)",
+        "all_params": {
+          "Intercept": -6.435000000000419,
+          "C(domain)[T.math]": 7.30500000000042,
+          "C(domain)[T.psychological]": -14.14999999999956,
+          "C(domain)[T.reasoning]": 12.150000000000425,
+          "C(domain)[T.safety]": -3.8599999999995753,
+          "cue_level": 3.4250000000001024,
+          "cue_level:C(domain)[T.math]": -1.1550000000001013,
+          "cue_level:C(domain)[T.psychological]": 3.3399999999998946,
+          "cue_level:C(domain)[T.reasoning]": -2.8300000000001027,
+          "cue_level:C(domain)[T.safety]": 5.8199999999999,
+          "Group Var": 0.860109774990928
+        },
+        "all_pvalues": {
+          "Intercept": 0.6555266395811266,
+          "C(domain)[T.math]": 0.7202793505890706,
+          "C(domain)[T.psychological]": 0.4879192311344831,
+          "C(domain)[T.reasoning]": 0.5514534086659104,
+          "C(domain)[T.safety]": 0.8499249180771791,
+          "cue_level": 0.2931701883364526,
+          "cue_level:C(domain)[T.math]": 0.8020753699020642,
+          "cue_level:C(domain)[T.psychological]": 0.46853893512556244,
+          "cue_level:C(domain)[T.reasoning]": 0.5390987761133309,
+          "cue_level:C(domain)[T.safety]": 0.20656167961769212,
+          "Group Var": 5.152713606546887e-07
+        },
+        "ci_95": {
+          "Intercept": [
+            -34.70765616427311,
+            21.83765616427227
+          ],
+          "C(domain)[T.math]": [
+            -32.67857379182507,
+            47.28857379182591
+          ],
+          "C(domain)[T.psychological]": [
+            -54.13357379182504,
+            25.833573791825927
+          ],
+          "C(domain)[T.reasoning]": [
+            -27.833573791825067,
+            52.13357379182592
+          ],
+          "C(domain)[T.safety]": [
+            -43.84357379182506,
+            36.12357379182591
+          ],
+          "cue_level": [
+            -2.960963241247582,
+            9.810963241247787
+          ],
+          "cue_level:C(domain)[T.math]": [
+            -10.186115824588555,
+            7.876115824588353
+          ],
+          "cue_level:C(domain)[T.psychological]": [
+            -5.691115824588557,
+            12.371115824588347
+          ],
+          "cue_level:C(domain)[T.reasoning]": [
+            -11.861115824588557,
+            6.201115824588351
+          ],
+          "cue_level:C(domain)[T.safety]": [
+            -3.2111158245885543,
+            14.851115824588355
+          ],
+          "Group Var": [
+            0.5243321337993148,
+            1.1958874161825412
+          ]
+        },
+        "domain_specific_slopes": {
+          "coding": {
+            "beta": 3.4249999999999985,
+            "se": 4.247026865757097,
+            "p_value": 0.4199854376548192
+          },
+          "math": {
+            "beta": 2.270000000000001,
+            "se": 1.7801690517995845,
+            "p_value": 0.20225268917967654
+          },
+          "psychological": {
+            "beta": 6.765000000000004,
+            "se": 3.3360761578463562,
+            "p_value": 0.04257745801425737
+          },
+          "reasoning": {
+            "beta": 0.5949999999999993,
+            "se": 1.732815900385555,
+            "p_value": 0.7313188214956756
+          },
+          "safety": {
+            "beta": 9.244999999999985,
+            "se": 4.212012393030592,
+            "p_value": 0.028169852016966663
+          }
+        },
+        "converged": true,
+        "n_observations": 500,
+        "n_tasks": 100
+      }
+    },
+    "planned_paired_contrasts": {
+      "C2_vs_C5_institutional_vs_explicit": {
+        "condition_a": "C2_subtle_institutional",
+        "condition_b": "C5_explicit",
+        "n_pairs": 100,
+        "mean_diff": 4.03,
+        "std_diff": 57.641429930601525,
+        "se_diff": 5.764142993060153,
+        "ci_95": [
+          -7.18075,
+          15.340249999999996
+        ],
+        "t_statistic": 0.6991499004885885,
+        "p_value_paired_t": 0.4860977184365012,
+        "wilcoxon_statistic": 1818.0,
+        "p_value_wilcoxon": 0.8211346882064301,
+        "cohens_dz": 0.06991499004885884,
+        "p_value_holm": 0.9721954368730024,
+        "p_value_fdr_bh": 0.5659427463748308
+      },
+      "C4_vs_C5_benchmark_vs_explicit": {
+        "condition_a": "C4_benchmark",
+        "condition_b": "C5_explicit",
+        "n_pairs": 100,
+        "mean_diff": -3.15,
+        "std_diff": 54.69038195869434,
+        "se_diff": 5.469038195869434,
+        "ci_95": [
+          -13.950249999999999,
+          7.450249999999997
+        ],
+        "t_statistic": -0.5759696471637519,
+        "p_value_paired_t": 0.5659427463748308,
+        "wilcoxon_statistic": 1756.5,
+        "p_value_wilcoxon": 0.5049886522006174,
+        "cohens_dz": -0.05759696471637519,
+        "p_value_holm": 0.9721954368730024,
+        "p_value_fdr_bh": 0.5659427463748308
+      },
+      "C2_vs_C4_institutional_vs_benchmark": {
+        "condition_a": "C2_subtle_institutional",
+        "condition_b": "C4_benchmark",
+        "n_pairs": 100,
+        "mean_diff": 7.18,
+        "std_diff": 50.832142062544115,
+        "se_diff": 5.083214206254412,
+        "ci_95": [
+          -2.6302499999999998,
+          17.45074999999999
+        ],
+        "t_statistic": 1.412492117913444,
+        "p_value_paired_t": 0.16094103289099249,
+        "wilcoxon_statistic": 1529.0,
+        "p_value_wilcoxon": 0.33121967938803465,
+        "cohens_dz": 0.1412492117913444,
+        "p_value_holm": 0.48282309867297746,
+        "p_value_fdr_bh": 0.32188206578198497
+      },
+      "C2_vs_C1_institutional_vs_neutral": {
+        "condition_a": "C2_subtle_institutional",
+        "condition_b": "C1_neutral",
+        "n_pairs": 100,
+        "mean_diff": 29.92,
+        "std_diff": 69.3906639428118,
+        "se_diff": 6.93906639428118,
+        "ci_95": [
+          16.66925,
+          43.960999999999984
+        ],
+        "t_statistic": 4.311819241945648,
+        "p_value_paired_t": 3.831196139131201e-05,
+        "wilcoxon_statistic": 1018.5,
+        "p_value_wilcoxon": 2.10906966273689e-05,
+        "cohens_dz": 0.43118192419456486,
+        "p_value_holm": 0.00015324784556524805,
+        "p_value_fdr_bh": 0.00015324784556524805
+      }
+    },
     "exploratory_aggregate_monotonicity": {
       "spearman_rho_completion": 0.39999999999999997,
       "p_value_completion": 0.5046315754686911,
       "spearman_rho_verbosity": 0.39999999999999997,
       "p_value_verbosity": 0.5046315754686911,
       "spearman_rho_ebs": 0.09999999999999999,
-      "p_value_ebs": 0.8728885715695383
+      "p_value_ebs": 0.8728885715695383,
+      "is_monotonic": false
     },
     "by_domain": {
       "reasoning": {

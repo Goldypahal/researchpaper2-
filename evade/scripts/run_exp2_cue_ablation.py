@@ -343,16 +343,39 @@ def main():
         ebs_m = cs["ebs"]["mean"]
         print(f"{cond:24s} | C{cs['cue_level']}  | {cs['n_tasks']:3d} | {comp_m:+6.2f} [{comp_ci[0]:+5.1f},{comp_ci[1]:+5.1f}] | {verb_m:+7.3f}    | {acc_m:+5.2f} | {ref_m:+5.2f} | {ebs_m:.4f}")
 
-    task_lmm = summary_data.get("task_level_dose_response", {}).get("completion_tokens", {})
+    task_lmm = summary_data.get("task_level_linear_cue_trend", summary_data.get("task_level_dose_response", {})).get("completion_tokens", {})
     if task_lmm and "beta_cue_level" in task_lmm:
         print("-" * 85)
-        print("Primary Confirmatory Dose-Response (Task-Level Linear Mixed-Effects Model):")
+        print("Model A: Planned Linear Cue-Level Trend (Task-Level Linear Mixed-Effects Model):")
         print(f"  Δ Completion: beta = {task_lmm['beta_cue_level']:+.3f} tok/cue-level (SE = {task_lmm.get('se_cue_level', 0):.3f}, p = {task_lmm.get('p_value_cue_level', 1.0):.4e}, N = {task_lmm.get('n_observations', 0)})")
+
+    cat_lmm = summary_data.get("task_level_categorical_condition", {}).get("completion_tokens", {})
+    if cat_lmm and "all_params" in cat_lmm:
+        print("-" * 85)
+        print("Model B: Categorical Condition Effects (Mixed-Effects, Ref = C1_neutral):")
+        for p_k, p_val in cat_lmm["all_params"].items():
+            if "C(condition_cat" in p_k:
+                cond_tag = p_k.split("[T.")[-1].rstrip("]")
+                p_p = cat_lmm["all_pvalues"].get(p_k, 1.0)
+                p_se = cat_lmm.get("all_bse", {}).get(p_k, 0.0)
+                print(f"  {cond_tag:25s}: beta = {p_val:+6.2f} (SE = {p_se:.2f}, p = {p_p:.4e})")
+
+    contrasts = summary_data.get("planned_paired_contrasts", {})
+    if contrasts:
+        print("-" * 85)
+        print("Planned Within-Task Paired Contrasts:")
+        for c_k, c_dat in contrasts.items():
+            c_diff = c_dat.get("mean_diff", 0.0)
+            c_ci = c_dat.get("ci_95", [0.0, 0.0])
+            c_p_t = c_dat.get("p_value_paired_t", 1.0)
+            c_p_w = c_dat.get("p_value_wilcoxon", 1.0)
+            c_dz = c_dat.get("cohens_dz", 0.0)
+            print(f"  {c_k:35s}: Diff = {c_diff:+6.2f} [{c_ci[0]:+5.1f}, {c_ci[1]:+5.1f}] | t-test p={c_p_t:.4f} | Wilcoxon p={c_p_w:.4f} | d_z={c_dz:+.3f}")
 
     mono = summary_data.get("exploratory_aggregate_monotonicity", summary_data.get("dose_response_monotonicity", {}))
     print("-" * 85)
     print("Exploratory Aggregate Monotonicity (Spearman Rank Correlation on 6 Ladder Means):")
-    print(f"  Δ Completion Length: rho = {mono.get('spearman_rho_completion', 0):.4f} (p = {mono.get('p_value_completion', 1):.4f})")
+    print(f"  Δ Completion Length: rho = {mono.get('spearman_rho_completion', 0):.4f} (p = {mono.get('p_value_completion', 1):.4f}) [Non-monotonic condition profile]")
     print(f"  Δ Verbosity:         rho = {mono.get('spearman_rho_verbosity', 0):.4f} (p = {mono.get('p_value_verbosity', 1):.4f})")
     print(f"  Secondary EBS:       rho = {mono.get('spearman_rho_ebs', 0):.4f} (p = {mono.get('p_value_ebs', 1):.4f})")
     print("=" * 85 + "\n")

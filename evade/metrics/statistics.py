@@ -296,6 +296,175 @@ def fit_task_level_dose_response(
         return {"error": str(e), "outcome": outcome_col}
 
 
+def fit_task_level_categorical_condition(
+    df: pd.DataFrame,
+    outcome_col: str = "delta_completion_tokens",
+    reference_condition: str = "C1_neutral",
+    group_col: str = "task_id",
+) -> dict:
+    """
+    Task-level mixed-effects model with categorical condition predictors (Model B):
+        Y_ij = beta_0 + sum_k beta_k C(Condition_k) + C(Domain_i) + u_i + eps_ij
+    Directly evaluates non-linear condition effects without assuming an equidistant linear scale.
+    """
+    try:
+        import statsmodels.formula.api as smf
+    except ImportError:
+        warnings.warn("statsmodels not available; skipping categorical mixed model.")
+        return {}
+
+    df_copy = df.copy()
+    all_conds = sorted(df_copy["condition"].unique())
+    if reference_condition in all_conds:
+        categories = [reference_condition] + [c for c in all_conds if c != reference_condition]
+        df_copy["condition_cat"] = pd.Categorical(df_copy["condition"], categories=categories)
+        formula = f"{outcome_col} ~ C(condition_cat, Treatment(reference='{reference_condition}')) + C(domain)"
+    else:
+        formula = f"{outcome_col} ~ C(condition) + C(domain)"
+
+    try:
+        model = smf.mixedlm(formula, df_copy, groups=df_copy[group_col])
+        result = model.fit(disp=False)
+        ci = result.conf_int()
+
+        return {
+            "outcome": outcome_col,
+            "reference_condition": reference_condition,
+            "formula": formula,
+            "all_params": result.params.to_dict(),
+            "all_bse": result.bse.to_dict(),
+            "all_pvalues": result.pvalues.to_dict(),
+            "ci_95": {k: [float(ci.loc[k, 0]), float(ci.loc[k, 1])] for k in ci.index},
+            "converged": bool(result.converged),
+            "n_observations": int(result.nobs),
+            "n_tasks": int(df_copy[group_col].nunique()),
+        }
+    except Exception as e:
+        warnings.warn(f"Categorical condition mixed model failed for {outcome_col}: {e}")
+        return {"error": str(e), "outcome": outcome_col}
+
+
+def fit_task_level_cue_domain_interaction(
+    df: pd.DataFrame,
+    outcome_col: str = "delta_completion_tokens",
+    group_col: str = "task_id",
+) -> dict:
+    """
+    Task-level mixed-effects model testing the CueLevel x Domain interaction:
+        Y_ij = beta_0 + beta_1 CueLevel_j + C(Domain_i) + CueLevel_j:C(Domain_i) + u_i + eps_ij
+    Tests whether the slope of cue salience varies across task domains.
+    """
+    try:
+        import statsmodels.formula.api as smf
+    except ImportError:
+        warnings.warn("statsmodels not available; skipping cue x domain interaction model.")
+        return {}
+
+    formula = f"{outcome_col} ~ cue_level * C(domain)"
+    try:
+        model = smf.mixedlm(formula, df, groups=df[group_col])
+        result = model.fit(disp=False)
+        ci = result.conf_int()
+
+        # Extract domain-specific slopes
+        domain_slopes = {}
+        for dom in sorted(df["domain"].unique()):
+            sub = df[df["domain"] == dom]
+            try:
+                m_dom = smf.mixedlm(f"{outcome_col} ~ cue_level", sub, groups=sub[group_col]).fit(disp=False)
+                domain_slopes[dom] = {
+                    "beta": float(m_dom.params.get("cue_level", 0.0)),
+                    "se": float(m_dom.bse.get("cue_level", 0.0)),
+                    "p_value": float(m_dom.pvalues.get("cue_level", 1.0)),
+                }
+            except Exception:
+                ols = smf.ols(f"{outcome_col} ~ cue_level", sub).fit()
+                domain_slopes[dom] = {
+                    "beta": float(ols.params.get("cue_level", 0.0)),
+                    "se": float(ols.bse.get("cue_level", 0.0)),
+                    "p_value": float(ols.pvalues.get("cue_level", 1.0)),
+                }
+
+        return {
+            "outcome": outcome_col,
+            "formula": formula,
+            "all_params": result.params.to_dict(),
+            "all_pvalues": result.pvalues.to_dict(),
+            "ci_95": {k: [float(ci.loc[k, 0]), float(ci.loc[k, 1])] for k in ci.index},
+            "domain_specific_slopes": domain_slopes,
+            "converged": bool(result.converged),
+            "n_observations": int(result.nobs),
+            "n_tasks": int(df[group_col].nunique()),
+        }
+    except Exception as e:
+        warnings.warn(f"Cue x domain interaction model failed for {outcome_col}: {e}")
+        return {"error": str(e), "outcome": outcome_col}
+
+
+def compute_within_task_contrast(
+    df: pd.DataFrame,
+    condition_a: str,
+    condition_b: str,
+    outcome_col: str = "test_completion_tokens",
+    group_col: str = "task_id",
+) -> dict:
+    """
+    Computes a within-task paired statistical contrast between two conditions (e.g. C2 vs C5).
+    Evaluates:
+      - Mean paired difference & SE
+      - 95% Bootstrap CI
+      - Paired Student's t-test
+      - Wilcoxon signed-rank test
+      - Paired Cohen's d_z effect size
+    """
+    piv = df.pivot(index=group_col, columns="condition", values=outcome_col)
+    if condition_a not in piv.columns or condition_b not in piv.columns:
+        return {"error": f"Conditions {condition_a} or {condition_b} not found"}
+
+    diffs = (piv[condition_a] - piv[condition_b]).dropna()
+    arr = diffs.values.astype(float)
+    n = len(arr)
+    if n < 2:
+        return {"error": "Insufficient paired observations"}
+
+    m_diff = float(np.mean(arr))
+    std_diff = float(np.std(arr, ddof=1))
+    se_diff = std_diff / np.sqrt(n)
+
+    # Paired t-test
+    t_stat, p_t = stats.ttest_rel(piv[condition_a], piv[condition_b])
+
+    # Wilcoxon signed rank test
+    try:
+        w_stat, p_w = stats.wilcoxon(piv[condition_a], piv[condition_b])
+    except Exception:
+        w_stat, p_w = 0.0, 1.0
+
+    # Bootstrap 95% CI
+    rng = np.random.default_rng(42)
+    boot_means = [float(np.mean(rng.choice(arr, size=n, replace=True))) for _ in range(5000)]
+    ci_low = float(np.percentile(boot_means, 2.5))
+    ci_high = float(np.percentile(boot_means, 97.5))
+
+    # Cohen's d_z
+    dz = float(m_diff / std_diff) if std_diff > 0 else 0.0
+
+    return {
+        "condition_a": condition_a,
+        "condition_b": condition_b,
+        "n_pairs": n,
+        "mean_diff": m_diff,
+        "std_diff": std_diff,
+        "se_diff": se_diff,
+        "ci_95": [ci_low, ci_high],
+        "t_statistic": float(t_stat),
+        "p_value_paired_t": float(p_t),
+        "wilcoxon_statistic": float(w_stat),
+        "p_value_wilcoxon": float(p_w),
+        "cohens_dz": dz,
+    }
+
+
 def mixed_effects_regression(df: pd.DataFrame) -> dict:
     """
     Backward-compatible wrapper for linear_mixed_effects_model.

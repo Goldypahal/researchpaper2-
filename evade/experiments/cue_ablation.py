@@ -36,6 +36,9 @@ from metrics.statistics import (
     mcnemar_test,
     permutation_test,
     fit_task_level_dose_response,
+    fit_task_level_categorical_condition,
+    fit_task_level_cue_domain_interaction,
+    compute_within_task_contrast,
     adjust_pvalues,
 )
 
@@ -298,14 +301,46 @@ def summarize_exp2_results(all_pairs: List[Dict[str, Any]]) -> Dict[str, Any]:
         ladder_verb_means.append(m_verb)
         ladder_ebs_means.append(m_ebs)
 
-    # 1. Primary Dose-Response: Task-level Mixed-Effects Model
+    # 1. Primary Planned Linear Trend: Task-level Mixed-Effects Model (Model A)
     # Fits: Delta ~ CueLevel + C(Domain) + (1|Task) across all underlying observations
     df_pairs = pd.DataFrame(all_pairs) if all_pairs else pd.DataFrame()
-    lmm_dose_comp = fit_task_level_dose_response(df_pairs, outcome_col="delta_completion_tokens") if not df_pairs.empty else {}
-    lmm_dose_verb = fit_task_level_dose_response(df_pairs, outcome_col="delta_verbosity") if not df_pairs.empty else {}
-    lmm_dose_hedge = fit_task_level_dose_response(df_pairs, outcome_col="delta_hedging") if not df_pairs.empty else {}
+    lmm_linear_comp = fit_task_level_dose_response(df_pairs, outcome_col="delta_completion_tokens") if not df_pairs.empty else {}
+    lmm_linear_verb = fit_task_level_dose_response(df_pairs, outcome_col="delta_verbosity") if not df_pairs.empty else {}
+    lmm_linear_hedge = fit_task_level_dose_response(df_pairs, outcome_col="delta_hedging") if not df_pairs.empty else {}
 
-    # 2. Multiple-Testing Correction across Secondary Endpoints
+    # 2. Categorical Condition Mixed-Effects Model (Model B)
+    # Fits: Delta ~ C(Condition, ref='C1_neutral') + C(Domain) + (1|Task) without assuming equidistant spacing
+    lmm_cat_comp = fit_task_level_categorical_condition(df_pairs, outcome_col="delta_completion_tokens", reference_condition="C1_neutral") if not df_pairs.empty else {}
+
+    # 3. CueLevel x Domain Interaction Mixed-Effects Model (Model C)
+    # Fits: Delta ~ CueLevel * C(Domain) + (1|Task)
+    lmm_interact_comp = fit_task_level_cue_domain_interaction(df_pairs, outcome_col="delta_completion_tokens") if not df_pairs.empty else {}
+
+    # 4. Planned Within-Task Paired Contrasts (C2 vs C5, C4 vs C5, C2 vs C4, C2 vs C1)
+    planned_contrasts = {}
+    if not df_pairs.empty:
+        contrast_pairs = [
+            ("C2_subtle_institutional", "C5_explicit", "C2_vs_C5_institutional_vs_explicit"),
+            ("C4_benchmark", "C5_explicit", "C4_vs_C5_benchmark_vs_explicit"),
+            ("C2_subtle_institutional", "C4_benchmark", "C2_vs_C4_institutional_vs_benchmark"),
+            ("C2_subtle_institutional", "C1_neutral", "C2_vs_C1_institutional_vs_neutral"),
+        ]
+        raw_contrast_pvals = {}
+        for c_a, c_b, c_key in contrast_pairs:
+            c_res = compute_within_task_contrast(df_pairs, c_a, c_b, outcome_col="test_completion_tokens")
+            planned_contrasts[c_key] = c_res
+            if "p_value_paired_t" in c_res:
+                raw_contrast_pvals[c_key] = c_res["p_value_paired_t"]
+
+        # Multiple testing corrections across planned contrasts
+        if raw_contrast_pvals:
+            holm_contrasts = adjust_pvalues(raw_contrast_pvals, method="holm")
+            fdr_contrasts = adjust_pvalues(raw_contrast_pvals, method="fdr_bh")
+            for c_key in raw_contrast_pvals:
+                planned_contrasts[c_key]["p_value_holm"] = holm_contrasts.get(c_key, raw_contrast_pvals[c_key])
+                planned_contrasts[c_key]["p_value_fdr_bh"] = fdr_contrasts.get(c_key, raw_contrast_pvals[c_key])
+
+    # 5. Multiple-Testing Correction across Secondary Endpoints
     secondary_raw_pvals = {}
     for c_name, c_data in condition_summaries.items():
         for m_name in ["delta_verbosity", "delta_refusal", "delta_accuracy", "delta_hedging"]:
@@ -320,7 +355,7 @@ def summarize_exp2_results(all_pairs: List[Dict[str, Any]]) -> Dict[str, Any]:
         condition_summaries[c_name][m_name]["p_value_holm"] = holm_pvals.get(key, p_raw)
         condition_summaries[c_name][m_name]["p_value_fdr_bh"] = fdr_pvals.get(key, p_raw)
 
-    # 3. Exploratory Aggregate Monotonicity (Spearman rank correlation on 6 aggregate means)
+    # 6. Exploratory Aggregate Monotonicity (Spearman rank correlation on 6 aggregate means)
     spearman_comp = spearmanr(ladder_levels, ladder_comp_means)
     spearman_verb = spearmanr(ladder_levels, ladder_verb_means)
     spearman_ebs = spearmanr(ladder_levels, ladder_ebs_means)
@@ -351,11 +386,24 @@ def summarize_exp2_results(all_pairs: List[Dict[str, Any]]) -> Dict[str, Any]:
             "summary_composite": "ebs (strictly secondary descriptive composite)",
         },
         "conditions": condition_summaries,
-        "task_level_dose_response": {
-            "completion_tokens": lmm_dose_comp,
-            "verbosity": lmm_dose_verb,
-            "hedging": lmm_dose_hedge,
+        "task_level_linear_cue_trend": {
+            "completion_tokens": lmm_linear_comp,
+            "verbosity": lmm_linear_verb,
+            "hedging": lmm_linear_hedge,
         },
+        # Backward-compatible alias
+        "task_level_dose_response": {
+            "completion_tokens": lmm_linear_comp,
+            "verbosity": lmm_linear_verb,
+            "hedging": lmm_linear_hedge,
+        },
+        "task_level_categorical_condition": {
+            "completion_tokens": lmm_cat_comp,
+        },
+        "task_level_domain_interaction": {
+            "completion_tokens": lmm_interact_comp,
+        },
+        "planned_paired_contrasts": planned_contrasts,
         "exploratory_aggregate_monotonicity": {
             "spearman_rho_completion": float(spearman_comp.statistic) if not np.isnan(spearman_comp.statistic) else 0.0,
             "p_value_completion": float(spearman_comp.pvalue) if not np.isnan(spearman_comp.pvalue) else 1.0,
@@ -363,6 +411,7 @@ def summarize_exp2_results(all_pairs: List[Dict[str, Any]]) -> Dict[str, Any]:
             "p_value_verbosity": float(spearman_verb.pvalue) if not np.isnan(spearman_verb.pvalue) else 1.0,
             "spearman_rho_ebs": float(spearman_ebs.statistic) if not np.isnan(spearman_ebs.statistic) else 0.0,
             "p_value_ebs": float(spearman_ebs.pvalue) if not np.isnan(spearman_ebs.pvalue) else 1.0,
+            "is_monotonic": bool(spearman_comp.statistic == 1.0),
         },
         "by_domain": domain_summary,
     }
