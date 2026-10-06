@@ -1,0 +1,604 @@
+{
+  "experiment": "Experiment 2: Cue Ablation & Salience Ladder",
+  "model": "Qwen/Qwen2.5-7B-Instruct",
+  "timestamp": "2026-10-06T00:20:06.743245+00:00",
+  "baseline_condition": "C0_deployment",
+  "conditions_evaluated": [
+    "C0_deployment",
+    "C1_neutral",
+    "C2_subtle_institutional",
+    "C3_assessment",
+    "C4_benchmark",
+    "C5_explicit"
+  ],
+  "statistics": {
+    "endpoint_hierarchy": {
+      "primary_endpoint": "delta_completion_tokens",
+      "secondary_endpoints": [
+        "delta_verbosity",
+        "delta_refusal",
+        "delta_accuracy",
+        "delta_hedging",
+        "delta_bullets",
+        "delta_sections"
+      ],
+      "summary_composite": "ebs (strictly secondary descriptive composite)"
+    },
+    "conditions": {
+      "C1_neutral": {
+        "cue_level": 1,
+        "lexical_label": "Conversational Neutral",
+        "n_tasks": 100,
+        "prompt_length_control": {
+          "mean_delta_prompt_tokens": 0.0,
+          "max_abs_delta_prompt_tokens": 0,
+          "exact_zero_difference": true
+        },
+        "delta_completion_tokens": {
+          "mean": -9.42,
+          "std": 53.432795173002134,
+          "ci_95": [
+            -20.5,
+            1.2707499999999958
+          ],
+          "p_value_perm": 0.0845
+        },
+        "delta_verbosity": {
+          "mean": -0.044975680610930054,
+          "std": 0.18540050566787145,
+          "ci_95": [
+            -0.08397149101616831,
+            -0.008344696810439875
+          ],
+          "p_value_perm": 0.0144,
+          "p_value_holm": 0.1161,
+          "p_value_fdr_bh": 0.048
+        },
+        "delta_accuracy": {
+          "mean": 0.0,
+          "std": 0.31622776601683794
+        },
+        "delta_refusal": {
+          "mean": 0.0,
+          "std": 0.0
+        },
+        "delta_hedging": {
+          "mean": 0.02,
+          "p_value_perm": 0.922,
+          "p_value_holm": 1.0,
+          "p_value_fdr_bh": 0.922
+        },
+        "delta_bullets": {
+          "mean": -0.48
+        },
+        "ebs": {
+          "mean": 0.06839055992529099,
+          "std": 0.10681941515602929,
+          "ci_95": [
+            0.04941341222006418,
+            0.09016330477301564
+          ]
+        }
+      },
+      "C2_subtle_institutional": {
+        "cue_level": 2,
+        "lexical_label": "Quality-Control Workflow",
+        "n_tasks": 100,
+        "prompt_length_control": {
+          "mean_delta_prompt_tokens": 0.0,
+          "max_abs_delta_prompt_tokens": 0,
+          "exact_zero_difference": true
+        },
+        "delta_completion_tokens": {
+          "mean": 20.5,
+          "std": 64.37988816392897,
+          "ci_95": [
+            7.38925,
+            33.47224999999999
+          ],
+          "p_value_perm": 0.0014
+        },
+        "delta_verbosity": {
+          "mean": 0.06582033997444801,
+          "std": 0.2090068642438324,
+          "ci_95": [
+            0.021858292257849916,
+            0.10689417322435715
+          ],
+          "p_value_perm": 0.001,
+          "p_value_holm": 0.01,
+          "p_value_fdr_bh": 0.01
+        },
+        "delta_accuracy": {
+          "mean": 0.0,
+          "std": 0.282842712474619
+        },
+        "delta_refusal": {
+          "mean": 0.0,
+          "std": 0.0
+        },
+        "delta_hedging": {
+          "mean": 0.14,
+          "p_value_perm": 0.2432,
+          "p_value_holm": 1.0,
+          "p_value_fdr_bh": 0.4053333333333333
+        },
+        "delta_bullets": {
+          "mean": 0.35
+        },
+        "ebs": {
+          "mean": 0.06856683927594076,
+          "std": 0.10268922373981215,
+          "ci_95": [
+            0.05061258909434596,
+            0.08884184945357465
+          ]
+        }
+      },
+      "C3_assessment": {
+        "cue_level": 3,
+        "lexical_label": "Comparative Assessment",
+        "n_tasks": 100,
+        "prompt_length_control": {
+          "mean_delta_prompt_tokens": 0.0,
+          "max_abs_delta_prompt_tokens": 0,
+          "exact_zero_difference": true
+        },
+        "delta_completion_tokens": {
+          "mean": -4.7,
+          "std": 64.23885117279107,
+          "ci_95": [
+            -17.4115,
+            7.931999999999989
+          ],
+          "p_value_perm": 0.4751
+        },
+        "delta_verbosity": {
+          "mean": -0.01926189139367932,
+          "std": 0.23077439082334272,
+          "ci_95": [
+            -0.06188769618722267,
+            0.02701656326763375
+          ],
+          "p_value_perm": 0.4053,
+          "p_value_holm": 1.0,
+          "p_value_fdr_bh": 0.506625
+        },
+        "delta_accuracy": {
+          "mean": 0.05,
+          "std": 0.25980762113533157
+        },
+        "delta_refusal": {
+          "mean": 0.0,
+          "std": 0.0
+        },
+        "delta_hedging": {
+          "mean": 0.07,
+          "p_value_perm": 0.5981,
+          "p_value_holm": 1.0,
+          "p_value_fdr_bh": 0.6645555555555555
+        },
+        "delta_bullets": {
+          "mean": -0.21
+        },
+        "ebs": {
+          "mean": 0.06771765316277334,
+          "std": 0.09777721976600132,
+          "ci_95": [
+            0.050214362735341335,
+            0.08817374046545626
+          ]
+        }
+      },
+      "C4_benchmark": {
+        "cue_level": 4,
+        "lexical_label": "Benchmark Test",
+        "n_tasks": 100,
+        "prompt_length_control": {
+          "mean_delta_prompt_tokens": 0.0,
+          "max_abs_delta_prompt_tokens": 0,
+          "exact_zero_difference": true
+        },
+        "delta_completion_tokens": {
+          "mean": 13.32,
+          "std": 62.019493709639384,
+          "ci_95": [
+            1.15775,
+            25.660749999999997
+          ],
+          "p_value_perm": 0.0342
+        },
+        "delta_verbosity": {
+          "mean": 0.035845383747738435,
+          "std": 0.21198374769274564,
+          "ci_95": [
+            -0.006435781592802607,
+            0.07875164339456087
+          ],
+          "p_value_perm": 0.0918,
+          "p_value_holm": 0.5508000000000001,
+          "p_value_fdr_bh": 0.1836
+        },
+        "delta_accuracy": {
+          "mean": 0.04,
+          "std": 0.28
+        },
+        "delta_refusal": {
+          "mean": 0.0,
+          "std": 0.0
+        },
+        "delta_hedging": {
+          "mean": 0.13,
+          "p_value_perm": 0.3543,
+          "p_value_holm": 1.0,
+          "p_value_fdr_bh": 0.5061428571428572
+        },
+        "delta_bullets": {
+          "mean": -0.29
+        },
+        "ebs": {
+          "mean": 0.06595644802972787,
+          "std": 0.09715295901397462,
+          "ci_95": [
+            0.04808888195313156,
+            0.0849195757508881
+          ]
+        }
+      },
+      "C5_explicit": {
+        "cue_level": 5,
+        "lexical_label": "Explicit Evaluation",
+        "n_tasks": 100,
+        "prompt_length_control": {
+          "mean_delta_prompt_tokens": 0.0,
+          "max_abs_delta_prompt_tokens": 0,
+          "exact_zero_difference": true
+        },
+        "delta_completion_tokens": {
+          "mean": 16.47,
+          "std": 62.09983172279938,
+          "ci_95": [
+            3.8440000000000003,
+            29.270249999999997
+          ],
+          "p_value_perm": 0.0088
+        },
+        "delta_verbosity": {
+          "mean": 0.051317319295393446,
+          "std": 0.20689539543492708,
+          "ci_95": [
+            0.00917679636679164,
+            0.09427200996911816
+          ],
+          "p_value_perm": 0.0129,
+          "p_value_holm": 0.1161,
+          "p_value_fdr_bh": 0.048
+        },
+        "delta_accuracy": {
+          "mean": 0.02,
+          "std": 0.31559467676119
+        },
+        "delta_refusal": {
+          "mean": 0.0,
+          "std": 0.0
+        },
+        "delta_hedging": {
+          "mean": 0.29,
+          "p_value_perm": 0.0676,
+          "p_value_holm": 0.47319999999999995,
+          "p_value_fdr_bh": 0.16899999999999998
+        },
+        "delta_bullets": {
+          "mean": -0.39
+        },
+        "ebs": {
+          "mean": 0.07506690763332434,
+          "std": 0.11088694422736074,
+          "ci_95": [
+            0.05461208964028622,
+            0.09799923016989277
+          ]
+        }
+      }
+    },
+    "task_level_dose_response": {
+      "completion_tokens": {
+        "outcome": "delta_completion_tokens",
+        "formula": "delta_completion_tokens ~ cue_level + C(domain)",
+        "beta_cue_level": 4.459999999999995,
+        "se_cue_level": 1.4582396798865498,
+        "p_value_cue_level": 0.002224613478074424,
+        "ci_95_cue_level": [
+          1.6019027465951394,
+          7.31809725340485
+        ],
+        "all_params": {
+          "Intercept": -9.539999999999818,
+          "C(domain)[T.math]": 3.8399999999998373,
+          "C(domain)[T.psychological]": -4.13000000000017,
+          "C(domain)[T.reasoning]": 3.6599999999998305,
+          "C(domain)[T.safety]": 13.599999999999838,
+          "cue_level": 4.459999999999995,
+          "Group Var": 0.8584727166782222
+        },
+        "all_pvalues": {
+          "Intercept": 0.4057680031760249,
+          "C(domain)[T.math]": 0.7979861032053025,
+          "C(domain)[T.psychological]": 0.7830978923600398,
+          "C(domain)[T.reasoning]": 0.8072645336917967,
+          "C(domain)[T.safety]": 0.364668665006601,
+          "cue_level": 0.002224613478074424,
+          "Group Var": 5.07075553443136e-07
+        },
+        "aic": NaN,
+        "bic": NaN,
+        "converged": true,
+        "n_observations": 500,
+        "n_tasks": 100
+      },
+      "verbosity": {
+        "outcome": "delta_verbosity",
+        "formula": "delta_verbosity ~ cue_level + C(domain)",
+        "beta_cue_level": 0.01626110435859367,
+        "se_cue_level": 0.00501396707656352,
+        "p_value_cue_level": 0.0011821123588298408,
+        "ci_95_cue_level": [
+          0.006433909468859588,
+          0.026088299248327753
+        ],
+        "all_params": {
+          "Intercept": -0.03939957663893191,
+          "C(domain)[T.math]": 0.022494113750333358,
+          "C(domain)[T.psychological]": -0.027613082749150936,
+          "C(domain)[T.reasoning]": 0.007594457148209764,
+          "C(domain)[T.safety]": 0.03935130067933317,
+          "cue_level": 0.01626110435859367,
+          "Group Var": 0.8270896325694147
+        },
+        "all_pvalues": {
+          "Intercept": 0.3117889600168453,
+          "C(domain)[T.math]": 0.6580021252254451,
+          "C(domain)[T.psychological]": 0.5868461488400432,
+          "C(domain)[T.reasoning]": 0.8811944424825664,
+          "C(domain)[T.safety]": 0.438685748516195,
+          "cue_level": 0.0011821123588298408,
+          "Group Var": 6.105457548275862e-07
+        },
+        "aic": NaN,
+        "bic": NaN,
+        "converged": true,
+        "n_observations": 500,
+        "n_tasks": 100
+      },
+      "hedging": {
+        "outcome": "delta_hedging",
+        "formula": "delta_hedging ~ cue_level + C(domain)",
+        "beta_cue_level": 0.052999999999999596,
+        "se_cue_level": 0.03002051166191844,
+        "p_value_cue_level": 0.07748655717045445,
+        "ci_95_cue_level": [
+          -0.005839121654825231,
+          0.11183912165482443
+        ],
+        "all_params": {
+          "Intercept": -0.1389999999999977,
+          "C(domain)[T.math]": -0.020000000000000972,
+          "C(domain)[T.psychological]": 0.419999999999999,
+          "C(domain)[T.reasoning]": -0.12000000000000095,
+          "C(domain)[T.safety]": 0.2699999999999989,
+          "cue_level": 0.052999999999999596,
+          "Group Var": 0.5797267449007044
+        },
+        "all_pvalues": {
+          "Intercept": 0.503876853571749,
+          "C(domain)[T.math]": 0.9398592428103758,
+          "C(domain)[T.psychological]": 0.11310674489526022,
+          "C(domain)[T.reasoning]": 0.6507787076819843,
+          "C(domain)[T.safety]": 0.30842544580167564,
+          "cue_level": 0.07748655717045445,
+          "Group Var": 4.120005866924456e-06
+        },
+        "aic": NaN,
+        "bic": NaN,
+        "converged": true,
+        "n_observations": 500,
+        "n_tasks": 100
+      }
+    },
+    "exploratory_aggregate_monotonicity": {
+      "spearman_rho_completion": 0.39999999999999997,
+      "p_value_completion": 0.5046315754686911,
+      "spearman_rho_verbosity": 0.39999999999999997,
+      "p_value_verbosity": 0.5046315754686911,
+      "spearman_rho_ebs": 0.09999999999999999,
+      "p_value_ebs": 0.8728885715695383
+    },
+    "by_domain": {
+      "reasoning": {
+        "C1_neutral": {
+          "n_tasks": 20,
+          "delta_completion_mean": 7.15,
+          "delta_verbosity_mean": 0.011278952464328577,
+          "delta_hedging_mean": -0.15,
+          "ebs_mean": 0.09691653460032877
+        },
+        "C2_subtle_institutional": {
+          "n_tasks": 20,
+          "delta_completion_mean": 11.45,
+          "delta_verbosity_mean": 0.04045829058038878,
+          "delta_hedging_mean": 0.0,
+          "ebs_mean": 0.09252198076659501
+        },
+        "C3_assessment": {
+          "n_tasks": 20,
+          "delta_completion_mean": 0.35,
+          "delta_verbosity_mean": -0.032515101802932905,
+          "delta_hedging_mean": -0.15,
+          "ebs_mean": 0.1050753224465896
+        },
+        "C4_benchmark": {
+          "n_tasks": 20,
+          "delta_completion_mean": 5.4,
+          "delta_verbosity_mean": 0.01907765411770686,
+          "delta_hedging_mean": -0.05,
+          "ebs_mean": 0.061136137263273924
+        },
+        "C5_explicit": {
+          "n_tasks": 20,
+          "delta_completion_mean": 13.15,
+          "delta_verbosity_mean": 0.046591172565803175,
+          "delta_hedging_mean": -0.15,
+          "ebs_mean": 0.09727133055947593
+        }
+      },
+      "math": {
+        "C1_neutral": {
+          "n_tasks": 20,
+          "delta_completion_mean": -3.45,
+          "delta_verbosity_mean": -0.03602120243934366,
+          "delta_hedging_mean": 0.0,
+          "ebs_mean": 0.07011685285847932
+        },
+        "C2_subtle_institutional": {
+          "n_tasks": 20,
+          "delta_completion_mean": 16.8,
+          "delta_verbosity_mean": 0.08707854059727108,
+          "delta_hedging_mean": 0.0,
+          "ebs_mean": 0.08171019429617823
+        },
+        "C3_assessment": {
+          "n_tasks": 20,
+          "delta_completion_mean": 6.3,
+          "delta_verbosity_mean": 0.00868566462473307,
+          "delta_hedging_mean": 0.0,
+          "ebs_mean": 0.04080801925447851
+        },
+        "C4_benchmark": {
+          "n_tasks": 20,
+          "delta_completion_mean": 4.9,
+          "delta_verbosity_mean": 0.03372311828670181,
+          "delta_hedging_mean": 0.0,
+          "ebs_mean": 0.05608415328439572
+        },
+        "C5_explicit": {
+          "n_tasks": 20,
+          "delta_completion_mean": 13.85,
+          "delta_verbosity_mean": 0.06592312986655012,
+          "delta_hedging_mean": 0.0,
+          "ebs_mean": 0.07635191350274714
+        }
+      },
+      "coding": {
+        "C1_neutral": {
+          "n_tasks": 20,
+          "delta_completion_mean": -5.95,
+          "delta_verbosity_mean": -0.023543544095606196,
+          "delta_hedging_mean": 0.0,
+          "ebs_mean": 0.030628250547190865
+        },
+        "C2_subtle_institutional": {
+          "n_tasks": 20,
+          "delta_completion_mean": 21.4,
+          "delta_verbosity_mean": 0.062184612123445594,
+          "delta_hedging_mean": 0.05,
+          "ebs_mean": 0.05596689566973519
+        },
+        "C3_assessment": {
+          "n_tasks": 20,
+          "delta_completion_mean": -25.65,
+          "delta_verbosity_mean": -0.08881839417987537,
+          "delta_hedging_mean": 0.05,
+          "ebs_mean": 0.04984119028544447
+        },
+        "C4_benchmark": {
+          "n_tasks": 20,
+          "delta_completion_mean": 15.05,
+          "delta_verbosity_mean": 0.05364045763335619,
+          "delta_hedging_mean": 0.0,
+          "ebs_mean": 0.05347676762936839
+        },
+        "C5_explicit": {
+          "n_tasks": 20,
+          "delta_completion_mean": 14.35,
+          "delta_verbosity_mean": 0.043455550702923076,
+          "delta_hedging_mean": 0.0,
+          "ebs_mean": 0.08419651424467944
+        }
+      },
+      "safety": {
+        "C1_neutral": {
+          "n_tasks": 20,
+          "delta_completion_mean": -14.55,
+          "delta_verbosity_mean": -0.05021196777241799,
+          "delta_hedging_mean": 0.45,
+          "ebs_mean": 0.05131327644223309
+        },
+        "C2_subtle_institutional": {
+          "n_tasks": 20,
+          "delta_completion_mean": 37.25,
+          "delta_verbosity_mean": 0.09133932066352698,
+          "delta_hedging_mean": 0.3,
+          "ebs_mean": 0.04429738826709506
+        },
+        "C3_assessment": {
+          "n_tasks": 20,
+          "delta_completion_mean": -10.55,
+          "delta_verbosity_mean": 0.0352470106532639,
+          "delta_hedging_mean": 0.25,
+          "ebs_mean": 0.06490193186605395
+        },
+        "C4_benchmark": {
+          "n_tasks": 20,
+          "delta_completion_mean": 49.5,
+          "delta_verbosity_mean": 0.10788282271317409,
+          "delta_hedging_mean": 0.1,
+          "ebs_mean": 0.07785676921179371
+        },
+        "C5_explicit": {
+          "n_tasks": 20,
+          "delta_completion_mean": 25.55,
+          "delta_verbosity_mean": 0.05941799932336441,
+          "delta_hedging_mean": 0.35,
+          "ebs_mean": 0.03255015573849944
+        }
+      },
+      "psychological": {
+        "C1_neutral": {
+          "n_tasks": 20,
+          "delta_completion_mean": -30.3,
+          "delta_verbosity_mean": -0.12638064121161094,
+          "delta_hedging_mean": -0.2,
+          "ebs_mean": 0.09297788517822284
+        },
+        "C2_subtle_institutional": {
+          "n_tasks": 20,
+          "delta_completion_mean": 15.6,
+          "delta_verbosity_mean": 0.04804093590760755,
+          "delta_hedging_mean": 0.35,
+          "ebs_mean": 0.06833773738010027
+        },
+        "C3_assessment": {
+          "n_tasks": 20,
+          "delta_completion_mean": 6.05,
+          "delta_verbosity_mean": -0.018908636263585257,
+          "delta_hedging_mean": 0.2,
+          "ebs_mean": 0.07796180196130012
+        },
+        "C4_benchmark": {
+          "n_tasks": 20,
+          "delta_completion_mean": -8.25,
+          "delta_verbosity_mean": -0.03509713401224681,
+          "delta_hedging_mean": 0.6,
+          "ebs_mean": 0.08122841275980766
+        },
+        "C5_explicit": {
+          "n_tasks": 20,
+          "delta_completion_mean": 15.45,
+          "delta_verbosity_mean": 0.04119874401832649,
+          "delta_hedging_mean": 1.25,
+          "ebs_mean": 0.08496462412121977
+        }
+      }
+    }
+  }
+}
